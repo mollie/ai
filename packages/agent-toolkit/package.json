@@ -43,8 +43,10 @@
     "vercel"
   ],
   "dependencies": {
-    "mollie-api-typescript": "^1.12.8",
-    "zod": "^4.4.3"
+    "mollie-api-typescript": "^1.12.8"
+  },
+  "peerDependencies": {
+    "zod": "^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
