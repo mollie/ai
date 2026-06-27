@@ -24,6 +24,10 @@
       "types": "./dist/adapters/vercel-ai.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
