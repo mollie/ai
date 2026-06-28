@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+### Changed
+
+- README and adapter docs: replace all `gpt-4o` references with `gpt-5.5`
+- README OpenAI example: updated to use `@openai/agents` SDK instead of raw chat completions loop
+
 ## 0.3.0
 
 ### Added
