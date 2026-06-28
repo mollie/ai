@@ -19,7 +19,12 @@ export type ToolName =
   | "get_customer"
   | "create_customer"
   | "list_balances"
-  | "get_balance";
+  | "get_balance"
+  | "list_settlements"
+  | "get_settlement"
+  | "list_methods"
+  | "list_subscriptions"
+  | "create_subscription";
 
 export interface MollieAgentToolkitOptions {
   apiKey: string;
