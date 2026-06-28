@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- `list_sales_invoices`, `get_sales_invoice`, `create_sales_invoice`, `update_sales_invoice`
+- 4 new tests for sales invoice tools (21 total)
+
 ## 0.2.1
 
 ### Changed
