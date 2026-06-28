@@ -26,3 +26,13 @@ claude skill add https://raw.githubusercontent.com/mollie/ai/main/skills/mollie-
 | Package | Description |
 |---|---|
 | [`agent-toolkit`](packages/agent-toolkit/) | Use Mollie in AI agent frameworks (OpenAI, LangChain, Vercel AI SDK) |
+
+## Workflows
+
+Ready-to-run agent workflows built on the agent toolkit.
+
+| Workflow | Description |
+|---|---|
+| [`workflows/vercel-ai`](workflows/vercel-ai/) | Read-only payments and balance agent (Vercel AI SDK) |
+| [`workflows/openai`](workflows/openai/) | Settlement reconciliation agent (OpenAI) |
+| [`workflows/langchain`](workflows/langchain/) | Customer support agent with refund capability (LangChain) |
