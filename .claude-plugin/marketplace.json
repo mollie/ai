@@ -1,0 +1,11 @@
+{
+  "name": "mollie",
+  "owner": { "name": "Mollie" },
+  "plugins": [
+    {
+      "name": "mollie",
+      "source": "./",
+      "description": "Mollie payment integration — MCP server access and integration skills for Claude Code"
+    }
+  ]
+}
