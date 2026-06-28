@@ -1,54 +1,46 @@
 /**
- * OpenAI function calling example — payment reconciliation agent
+ * OpenAI Agents SDK example — settlement reconciliation agent
  *
- * Lists recent settlements and summarises them.
+ * Uses the modern @openai/agents SDK (not the legacy chat completions loop).
+ * The toolkit's tools plug directly into the agents SDK via the tool() adapter.
  *
  * Setup:
  *   export MOLLIE_API_KEY="test_xxx"
  *   export OPENAI_API_KEY="sk-..."
- *   npx tsx index.ts
+ *   npm install @openai/agents @mollie/agent-toolkit
+ *   npx tsx index.ts "Summarise my last 3 settlements"
  */
 
-import OpenAI from "openai";
+import { Agent, run, tool } from "@openai/agents";
 import { MollieAgentToolkit } from "@mollie/agent-toolkit";
-import { toOpenAITools, executeOpenAIToolCall } from "@mollie/agent-toolkit/openai";
-
-const client = new OpenAI();
 
 const toolkit = new MollieAgentToolkit({
   apiKey: process.env.MOLLIE_API_KEY!,
   tools: ["list_settlements", "get_settlement", "list_payments"],
 });
 
-const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-  {
-    role: "user",
-    content: "Summarise my last 3 settlements — amounts, status, and period covered.",
-  },
-];
+// MollieTool shape matches the agents SDK tool() signature directly.
+const agentTools = toolkit.getTools().map((t) =>
+  tool({
+    name: t.name,
+    description: t.description,
+    parameters: t.parameters,
+    execute: t.execute,
+  }),
+);
 
-// Simple agentic loop — keeps going until the model stops calling tools
-while (true) {
-  const response = await client.chat.completions.create({
-    model: "gpt-4o",
-    messages,
-    tools: toOpenAITools(toolkit),
-  });
+const agent = new Agent({
+  name: "Reconciliation Agent",
+  model: "gpt-5.5",
+  instructions:
+    "You are a financial reconciliation assistant for Mollie merchants. " +
+    "Summarise settlements clearly: amounts, periods, and status.",
+  tools: agentTools,
+});
 
-  const message = response.choices[0].message;
-  messages.push(message);
+const result = await run(
+  agent,
+  process.argv[2] ?? "Summarise my last 3 settlements — amounts, status, and period covered.",
+);
 
-  if (!message.tool_calls || message.tool_calls.length === 0) {
-    console.log(message.content);
-    break;
-  }
-
-  for (const toolCall of message.tool_calls) {
-    const result = await executeOpenAIToolCall(toolkit, toolCall);
-    messages.push({
-      role: "tool",
-      tool_call_id: toolCall.id,
-      content: JSON.stringify(result),
-    });
-  }
-}
+console.log(result.finalOutput);

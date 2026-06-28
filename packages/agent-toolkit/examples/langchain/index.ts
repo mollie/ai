@@ -22,7 +22,7 @@ const toolkit = new MollieAgentToolkit({
   tools: ["list_payments", "get_payment", "list_refunds", "create_refund"],
 });
 
-const llm = new ChatOpenAI({ model: "gpt-4o", temperature: 0 });
+const llm = new ChatOpenAI({ model: "gpt-5.5", temperature: 0 });
 
 const prompt = ChatPromptTemplate.fromMessages([
   [
