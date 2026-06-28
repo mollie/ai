@@ -11,7 +11,7 @@
  * const toolkit = new MollieAgentToolkit({ apiKey: process.env.MOLLIE_API_KEY! });
  *
  * const { text } = await generateText({
- *   model: openai("gpt-4o"),
+ *   model: openai("gpt-5.5"),
  *   tools: toVercelAITools(toolkit),
  *   prompt: "List my last 5 payments",
  * });

@@ -11,7 +11,7 @@
  * const tools = toOpenAITools(toolkit);
  *
  * const response = await openai.chat.completions.create({
- *   model: "gpt-4o",
+ *   model: "gpt-5.5",
  *   tools,
  *   messages: [{ role: "user", content: "List my last 5 payments" }],
  * });

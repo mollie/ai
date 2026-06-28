@@ -69,7 +69,7 @@ const toolkit = new MollieAgentToolkit({
 });
 
 const { text } = await generateText({
-  model: openai("gpt-4o"), // any AI SDK model provider works here
+  model: openai("gpt-5.5"), // any AI SDK model provider works here
   tools: toVercelAITools(toolkit),
   prompt: "List my last 5 payments",
 });
@@ -80,51 +80,38 @@ console.log(text);
 The `model` is yours to choose – the toolkit does not depend on any particular
 provider or model. Swap in a different AI SDK provider as needed.
 
-## OpenAI (function calling)
+## OpenAI Agents SDK
 
 ```typescript
-import OpenAI from "openai";
+import { Agent, run, tool } from "@openai/agents";
 import { MollieAgentToolkit } from "@mollie/agent-toolkit";
-import { toOpenAITools, executeOpenAIToolCall } from "@mollie/agent-toolkit/openai";
 
-const client = new OpenAI();
 const toolkit = new MollieAgentToolkit({
   apiKey: process.env.MOLLIE_API_KEY!,
   tools: ["list_payments", "get_payment"],
 });
 
-const messages = [{ role: "user", content: "List my last 5 payments" }];
+// MollieTool shape matches the agents SDK tool() signature directly.
+const agentTools = toolkit.getTools().map((t) =>
+  tool({
+    name: t.name,
+    description: t.description,
+    parameters: t.parameters,
+    execute: t.execute,
+  }),
+);
 
-const response = await client.chat.completions.create({
-  model: "gpt-4o",
-  messages,
-  tools: toOpenAITools(toolkit),
+const agent = new Agent({
+  name: "Payments Agent",
+  model: "gpt-5.5",
+  tools: agentTools,
 });
 
-const message = response.choices[0].message;
-
-if (message.tool_calls) {
-  messages.push(message);
-  for (const toolCall of message.tool_calls) {
-    const result = await executeOpenAIToolCall(toolkit, toolCall);
-    messages.push({
-      role: "tool",
-      tool_call_id: toolCall.id,
-      content: JSON.stringify(result),
-    });
-  }
-
-  // Send the tool results back to the model for a final answer.
-  const followUp = await client.chat.completions.create({
-    model: "gpt-4o",
-    messages,
-  });
-  console.log(followUp.choices[0].message.content);
-}
+const result = await run(agent, "List my last 5 payments");
+console.log(result.finalOutput);
 ```
 
-The same pattern applies to the Responses API – pass `toOpenAITools(toolkit)`
-as the tool list and route tool calls through `executeOpenAIToolCall`.
+If you prefer the lower-level function calling API, use `toOpenAITools` and `executeOpenAIToolCall` from `@mollie/agent-toolkit/openai`.
 
 ## LangChain
 
@@ -141,7 +128,7 @@ const toolkit = new MollieAgentToolkit({
 });
 const tools = toLangChainTools(toolkit);
 
-const llm = new ChatOpenAI({ model: "gpt-4o" });
+const llm = new ChatOpenAI({ model: "gpt-5.5" });
 const prompt = ChatPromptTemplate.fromMessages([
   ["system", "You are an assistant that helps with Mollie payments."],
   ["human", "{input}"],
