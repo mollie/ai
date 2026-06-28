@@ -22,7 +22,7 @@ const toolkit = new MollieAgentToolkit({
 });
 
 const { text } = await generateText({
-  model: openai("gpt-4o"),
+  model: openai("gpt-5.5"),
   tools: toVercelAITools(toolkit),
   maxSteps: 5,
   system:
