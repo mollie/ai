@@ -7,6 +7,6 @@
     "url": "https://mollie.com"
   },
   "homepage": "https://docs.mollie.com",
-  "repository": "https://gitlab.molops.io/libs/mollie-ai",
+  "repository": "https://github.com/mollie/ai",
   "license": "MIT"
 }
