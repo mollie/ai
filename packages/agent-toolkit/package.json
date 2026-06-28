@@ -24,6 +24,9 @@
       "types": "./dist/adapters/vercel-ai.d.ts"
     }
   },
+  "engines": {
+    "node": ">=18"
+  },
   "files": [
     "dist",
     "README.md"
