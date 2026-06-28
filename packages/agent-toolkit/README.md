@@ -6,8 +6,7 @@ This package exposes Mollie API operations as tools your agent can call through
 function calling. It is framework-agnostic: the same toolkit converts to the
 tool format each framework expects.
 
-> **Status: early (`0.1.0`).** The public API may change before `1.0.0`. Pin a
-> version and read the changelog before upgrading.
+> **Alpha — under active development.** The public API may change between releases. Pin a version and read the changelog before upgrading.
 
 ## ⚠️ This toolkit can move money
 
