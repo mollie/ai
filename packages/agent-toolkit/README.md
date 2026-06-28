@@ -166,21 +166,68 @@ const toolkit = new MollieAgentToolkit({
 
 ## Available tools
 
+### Payments
+
 | Tool | Type | Description |
 |---|---|---|
 | `list_payments` | Read | List recent payments |
 | `get_payment` | Read | Get a payment by ID |
 | `create_payment` | **Write – moves money** | Create a new payment |
+
+### Refunds
+
+| Tool | Type | Description |
+|---|---|---|
 | `list_refunds` | Read | List refunds |
 | `create_refund` | **Write – moves money** | Refund a payment |
+
+### Customers
+
+| Tool | Type | Description |
+|---|---|---|
 | `list_customers` | Read | List customers |
 | `get_customer` | Read | Get a customer by ID |
 | `create_customer` | Write | Create a customer |
+
+### Balances
+
+| Tool | Type | Description |
+|---|---|---|
 | `list_balances` | Read | List account balances |
 | `get_balance` | Read | Get a balance by ID |
 
+### Settlements
+
+| Tool | Type | Description |
+|---|---|---|
+| `list_settlements` | Read | List settlements (payouts to your bank account) |
+| `get_settlement` | Read | Get a settlement by ID, or use `next`/`open` |
+
+### Payment methods
+
+| Tool | Type | Description |
+|---|---|---|
+| `list_methods` | Read | List active payment methods, optionally filtered by amount |
+
+### Subscriptions
+
+| Tool | Type | Description |
+|---|---|---|
+| `list_subscriptions` | Read | List subscriptions for a customer |
+| `create_subscription` | Write | Create a recurring subscription for a customer |
+
+### Sales invoices
+
+| Tool | Type | Description |
+|---|---|---|
+| `list_sales_invoices` | Read | List sales invoices |
+| `get_sales_invoice` | Read | Get a sales invoice by ID |
+| `create_sales_invoice` | Write | Create a draft, issued, or paid sales invoice |
+| `update_sales_invoice` | Write | Update status, lines, recipient, or other invoice fields |
+
 Read tools are safe to expose broadly. Treat every Write tool as privileged,
-and the two money-moving tools as requiring explicit authorization.
+and the money-moving tools (`create_payment`, `create_refund`) as requiring
+explicit authorization before the agent can call them.
 
 ## Error handling
 
