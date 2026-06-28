@@ -53,6 +53,12 @@ Open this repository in Cursor — the MCP server is configured automatically vi
 codex plugin add github:mollie/ai
 ```
 
+### Gemini CLI
+
+```bash
+gemini extensions install github:mollie/ai
+```
+
 ## Skills
 
 Skills activate automatically when you're working on a Mollie integration. They steer the AI toward correct patterns, up-to-date SDKs, and common pitfalls to avoid.

@@ -1,0 +1,12 @@
+{
+  "name": "mollie",
+  "version": "1.0.0",
+  "mcpServers": {
+    "mollie": {
+      "httpUrl": "https://mcp.mollie.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MOLLIE_API_OAUTH_ORG_TOKEN}"
+      }
+    }
+  }
+}
