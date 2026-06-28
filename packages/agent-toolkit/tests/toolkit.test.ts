@@ -10,6 +10,7 @@ vi.mock("mollie-api-typescript", () => {
     settlements: { list: vi.fn(), get: vi.fn() },
     methods: { list: vi.fn() },
     subscriptions: { list: vi.fn(), create: vi.fn() },
+    salesInvoices: { list: vi.fn(), get: vi.fn(), create: vi.fn(), update: vi.fn() },
   };
   class Client { constructor() { Object.assign(this, mockClient); } }
   return { Client };
@@ -26,7 +27,9 @@ describe("MollieAgentToolkit", () => {
       expect(names).toContain("list_settlements");
       expect(names).toContain("list_methods");
       expect(names).toContain("list_subscriptions");
-      expect(names.length).toBe(15);
+      expect(names).toContain("list_sales_invoices");
+      expect(names).toContain("create_sales_invoice");
+      expect(names.length).toBe(19);
     });
 
     it("filters to only the specified tools", () => {

@@ -17,6 +17,7 @@ vi.mock("mollie-api-typescript", () => {
     settlements: { list: vi.fn(), get: vi.fn() },
     methods: { list: vi.fn() },
     subscriptions: { list: vi.fn(), create: vi.fn() },
+    salesInvoices: { list: vi.fn(), get: vi.fn(), create: vi.fn(), update: vi.fn() },
   };
   class Client { constructor() { Object.assign(this, mockClient); } }
   return { Client };
