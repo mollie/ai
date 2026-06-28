@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+### Changed
+
+- README: replace version-pinned status notice with alpha warning
+
 ## 0.2.0
 
 ### Added
