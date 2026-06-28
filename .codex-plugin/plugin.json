@@ -1,0 +1,13 @@
+{
+  "name": "mollie",
+  "version": "1.0.0",
+  "description": "Mollie payment integration — connects Codex to your Mollie account via the Mollie MCP server and activates integration skills for payments, Mollie Components, webhooks, and Mollie Connect.",
+  "author": {
+    "name": "Mollie",
+    "url": "https://mollie.com"
+  },
+  "homepage": "https://docs.mollie.com",
+  "repository": "https://github.com/mollie/ai",
+  "license": "MIT",
+  "skills": "./skills/"
+}

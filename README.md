@@ -2,24 +2,31 @@
 
 Resources for building AI-powered integrations with Mollie.
 
-## Agent Skills
+## Plugin installation
 
-Skills are instruction sets that activate in AI coding assistants (Claude Code, Cursor, etc.)
-when a developer is working on a Mollie integration. They steer the AI toward correct patterns,
-up-to-date SDKs, and common pitfalls to avoid.
-
-### Available skills
-
-| Skill | Description |
-|---|---|
-| [`mollie-integration`](skills/mollie-integration/) | Accepting payments, Mollie Components, webhooks |
-
-### Installation
+One command gives your AI coding assistant live access to your Mollie account (via the [Mollie MCP server](https://docs.mollie.com/docs/mollie-mcp-server)) plus integration skills that activate when you're building a Mollie integration.
 
 ```bash
 # Claude Code
-claude skill add https://raw.githubusercontent.com/mollie/ai/main/skills/mollie-integration/SKILL.md
+claude plugin install mollie@claude-community
+
+# Codex
+codex plugin add mollie@openai-curated
+
+# Cursor
+/add-plugin mollie
 ```
+
+> **Requires** a Mollie Advanced access token with `profile.read` scope.  
+> Set `MOLLIE_API_OAUTH_ORG_TOKEN` in your environment before installing.
+
+## Skills
+
+Skills activate automatically when you're working on a Mollie integration. They steer the AI toward correct patterns, up-to-date SDKs, and common pitfalls to avoid.
+
+| Skill | Description |
+|---|---|
+| [`mollie-integration`](skills/mollie-integration/) | Payments, Mollie Components, hosted checkout, webhooks |
 
 ## Packages
 
