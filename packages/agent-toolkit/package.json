@@ -1,6 +1,6 @@
 {
   "name": "@mollie/agent-toolkit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Use Mollie in AI agent frameworks — OpenAI, LangChain, Vercel AI SDK",
   "type": "module",
   "packageManager": "yarn@4.14.1",

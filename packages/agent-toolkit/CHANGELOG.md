@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.2.0
+
+### Added
+
+- `list_settlements`, `get_settlement`
+- `list_methods`
+- `list_subscriptions`, `create_subscription`
+- Vercel AI SDK, OpenAI Agents SDK, and LangChain examples
+- 17 unit tests across toolkit, adapters, and tools
+
+## 0.1.0
 
 Initial release.
 
