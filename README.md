@@ -10,10 +10,37 @@ The plugin gives your AI coding assistant live access to your Mollie account via
 
 ### Claude Code
 
-Install from this repository directly:
+Requires [Claude Code](https://code.claude.com/docs). Update first if `/plugin`
+isn't recognised: `npm install -g @anthropic-ai/claude-code@latest`.
+
+Installing is two steps – register the marketplace, then install the plugin:
 
 ```bash
-claude plugin install github:mollie/ai
+# 1. Add this repo as a marketplace
+claude plugin marketplace add mollie/ai
+
+# 2. Install the plugin
+claude plugin install mollie@mollie
+```
+
+Both commands also work as slash commands inside an interactive session
+(`/plugin marketplace add mollie/ai`, then `/plugin install mollie@mollie`).
+
+Then run `/reload-plugins` to activate it without restarting. The plugin's
+skills are namespaced, e.g. `/mollie:<command>`.
+
+#### Verifying
+
+Run `/plugin` and open the **Installed** tab, or from the shell:
+
+```bash
+claude plugin list
+```
+
+#### Updating
+
+```bash
+claude plugin marketplace update mollie
 ```
 
 ### Cursor
