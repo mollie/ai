@@ -4,21 +4,27 @@ Resources for building AI-powered integrations with Mollie.
 
 ## Plugin installation
 
-One command gives your AI coding assistant live access to your Mollie account (via the [Mollie MCP server](https://docs.mollie.com/docs/mollie-mcp-server)) plus integration skills that activate when you're building a Mollie integration.
+The plugin gives your AI coding assistant live access to your Mollie account via the [Mollie MCP server](https://docs.mollie.com/docs/mollie-mcp-server), plus integration skills that activate when you're building a Mollie integration.
+
+**Requires** a Mollie Advanced access token with `profile.read` scope. Set `MOLLIE_API_OAUTH_ORG_TOKEN` in your environment before installing.
+
+### Claude Code
+
+Install from this repository directly:
 
 ```bash
-# Claude Code
-claude plugin install mollie@claude-community
-
-# Codex
-codex plugin add mollie@openai-curated
-
-# Cursor
-/add-plugin mollie
+claude plugin install github:mollie/ai
 ```
 
-> **Requires** a Mollie Advanced access token with `profile.read` scope.  
-> Set `MOLLIE_API_OAUTH_ORG_TOKEN` in your environment before installing.
+### Cursor
+
+Open this repository in Cursor — the MCP server is configured automatically via `.cursor/mcp.json`. To install the full plugin including skills, go to **Settings → Plugins → Add local plugin** and point it at this directory.
+
+### Codex
+
+```bash
+codex plugin add github:mollie/ai
+```
 
 ## Skills
 
@@ -41,5 +47,5 @@ Ready-to-run agent examples built on the agent toolkit.
 | Example | Description |
 |---|---|
 | [`packages/agent-toolkit/examples/vercel-ai`](packages/agent-toolkit/examples/vercel-ai/) | Read-only payments and balance agent (Vercel AI SDK) |
-| [`packages/agent-toolkit/examples/openai`](packages/agent-toolkit/examples/openai/) | Settlement reconciliation agent (OpenAI) |
+| [`packages/agent-toolkit/examples/openai`](packages/agent-toolkit/examples/openai/) | Settlement reconciliation agent (OpenAI Agents SDK) |
 | [`packages/agent-toolkit/examples/langchain`](packages/agent-toolkit/examples/langchain/) | Customer support agent with refund capability (LangChain) |
