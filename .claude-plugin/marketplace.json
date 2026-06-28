@@ -1,11 +1,19 @@
 {
   "name": "mollie",
-  "owner": { "name": "Mollie" },
+  "owner": {
+    "name": "Mollie",
+    "email": "info@mollie.com"
+  },
   "plugins": [
     {
       "name": "mollie",
       "source": "./",
-      "description": "Mollie payment integration — MCP server access and integration skills for Claude Code"
+      "description": "Mollie payment integration — MCP server access and integration skills for Claude Code",
+      "author": {
+        "name": "Mollie",
+        "email": "info@mollie.com",
+        "url": "https://mollie.com"
+      }
     }
   ]
 }
