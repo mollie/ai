@@ -24,7 +24,11 @@ export type ToolName =
   | "get_settlement"
   | "list_methods"
   | "list_subscriptions"
-  | "create_subscription";
+  | "create_subscription"
+  | "list_sales_invoices"
+  | "get_sales_invoice"
+  | "create_sales_invoice"
+  | "update_sales_invoice";
 
 export interface MollieAgentToolkitOptions {
   apiKey: string;

@@ -6,6 +6,7 @@ import { balanceTools } from "./tools/balances.js";
 import { settlementTools } from "./tools/settlements.js";
 import { methodTools } from "./tools/methods.js";
 import { subscriptionTools } from "./tools/subscriptions.js";
+import { salesInvoiceTools } from "./tools/salesInvoices.js";
 import type { MollieTool, MollieAgentToolkitOptions, ToolName } from "./types.js";
 
 const ALL_TOOLS = new Set<ToolName>([
@@ -24,6 +25,10 @@ const ALL_TOOLS = new Set<ToolName>([
   "list_methods",
   "list_subscriptions",
   "create_subscription",
+  "list_sales_invoices",
+  "get_sales_invoice",
+  "create_sales_invoice",
+  "update_sales_invoice",
 ]);
 
 export class MollieAgentToolkit {
@@ -42,6 +47,7 @@ export class MollieAgentToolkit {
       ...settlementTools(client),
       ...methodTools(client),
       ...subscriptionTools(client),
+      ...salesInvoiceTools(client),
     ];
 
     this.tools = all.filter((t) => enabled.has(t.name as ToolName));
