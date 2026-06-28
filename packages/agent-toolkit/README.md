@@ -208,6 +208,8 @@ rather than assuming every call succeeds.
 
 - [Mollie documentation](https://docs.mollie.com)
 - [Mollie API reference](https://docs.mollie.com/reference/overview)
+- [GitHub repository](https://github.com/mollie/ai)
+- [Report an issue](https://github.com/mollie/ai/issues)
 
 ## License
 
