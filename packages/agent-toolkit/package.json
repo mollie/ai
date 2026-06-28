@@ -34,6 +34,8 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev": "tsx watch src/index.ts"
   },
   "keywords": [
@@ -54,6 +56,8 @@
   "devDependencies": {
     "@types/node": "^26.0.1",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9",
+    "zod": "^4.4.3"
   }
 }
