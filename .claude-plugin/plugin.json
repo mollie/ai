@@ -1,7 +1,7 @@
 {
   "name": "mollie",
   "description": "Mollie payment integration — connects Claude to your Mollie account via the Mollie MCP server and activates integration skills for payments, Mollie Components, webhooks, and Mollie Connect.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Mollie",
     "url": "https://mollie.com"
