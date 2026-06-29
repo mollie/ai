@@ -1,13 +1,7 @@
 {
   "mcpServers": {
     "mollie": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.mollie.com/mcp",
-        "--header",
-        "Authorization: Bearer ${MOLLIE_API_OAUTH_ORG_TOKEN}"
-      ]
+      "url": "https://mcp.mollie.com/mcp"
     }
   }
 }
