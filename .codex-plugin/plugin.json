@@ -1,6 +1,6 @@
 {
   "name": "mollie",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Mollie payment integration — connects Codex to your Mollie account via the Mollie MCP server and activates integration skills for payments, Mollie Components, webhooks, and Mollie Connect.",
   "author": {
     "name": "Mollie",
