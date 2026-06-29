@@ -1,11 +1,8 @@
 {
   "mcpServers": {
     "mollie": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.mollie.com/mcp"
-      ]
+      "type": "http",
+      "url": "https://mcp.mollie.com/mcp"
     }
   }
 }
