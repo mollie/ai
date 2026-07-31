@@ -65,7 +65,9 @@ Skills activate automatically when you're working on a Mollie integration. They 
 
 | Skill | Description |
 |---|---|
-| [`mollie-integration`](skills/mollie-integration/) | Payments, Mollie Components, hosted checkout, webhooks |
+| [`mollie-payments`](skills/mollie-payments/) | New integrations — payments, Connect (platforms/marketplaces), recurring/subscriptions, refunds/captures/settlements, troubleshooting |
+| [`mollie-upgrade`](skills/mollie-upgrade/) | SDK version upgrades, and migrating from the Orders API to the Payments API |
+| [`mollie-agent-toolkit`](skills/mollie-agent-toolkit/) | Building an AI agent that calls Mollie via `@mollie/agent-toolkit`, with write-tool safety guidance |
 
 ## Packages
 
