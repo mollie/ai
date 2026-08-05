@@ -8,7 +8,7 @@ description: >
   embedding Mollie Components (card fields), setting up a checkout flow, handling payment
   redirects, verifying webhooks, handling payment status updates, integrating Mollie in
   Next.js / React / Vue / vanilla JS, setting up Mollie in a backend (Node.js, PHP,
-  Python, Ruby), creating payments via the API, using the Mollie SDK, handling card
+  Python), creating payments via the API, using the Mollie SDK, handling card
   tokenisation, 3D Secure, Mollie.js, mollie-api-node, PCI compliance, card form, hosted
   checkout, payment links, iDEAL, credit card, SEPA, Klarna, Apple Pay, Google Pay,
   Bancontact, building a checkout, custom checkout, payment methods, Mollie Connect,
@@ -96,7 +96,7 @@ applies (`<references/payments/webhooks.md>`), but skip Steps 4 below.
 Before writing any code, ask:
 
 > What language and framework are you using?
-> - Backend: Node.js / PHP / Python / Ruby / other?
+> - Backend: Node.js / PHP / Python / other?
 > - Frontend: React / Vue / Next.js / vanilla JS / other?
 > - Are you in test mode or live?
 
@@ -128,6 +128,13 @@ Always use the official Mollie SDK for the developer's language:
 | Python | `mollie-api-python` |
 
 Always use the v2 API. Never construct raw API calls when an SDK is available.
+
+**Never use the Orders API for a new integration** — it's deprecated. Always build
+against the Payments API (`payments.create`, etc.), including hold-then-capture
+flows (`captureMode: 'manual'`, see `<references/operations/captures.md>`) that the
+Orders API used to handle via Shipments. If a developer's existing code already uses
+the Orders API, that's a migration case — route to the `mollie-upgrade` skill rather
+than extending the old API.
 
 ---
 
