@@ -6,7 +6,7 @@ Resources for building AI-powered integrations with Mollie.
 
 The plugin gives your AI coding assistant live access to your Mollie account via the [Mollie MCP server](https://docs.mollie.com/docs/mollie-mcp-server), plus integration skills that activate when you're building a Mollie integration.
 
-**Requires** a Mollie Advanced access token with `profile.read` scope. Set `MOLLIE_API_OAUTH_ORG_TOKEN` in your environment before installing.
+**Requires** a Mollie Advanced access token with `profile.read` scope. Set `MOLLIE_API_ADVANCED_ACCESS_TOKEN` in your environment before installing.
 
 ### Claude Code
 
