@@ -1,9 +1,12 @@
 /**
  * LangChain example — customer support agent
  *
- * Looks up payment status and handles refund requests.
- * Write tools are included but you should add your own confirmation step
- * before allowing create_refund in production.
+ * Looks up payment status and handles refund requests. `create_refund` is
+ * gated in code, not just by a system-prompt instruction: every refund the
+ * agent proposes is validated against the real payment amount and requires
+ * an explicit human "yes" on the terminal before it actually calls the API.
+ * A system prompt alone is not a safety control — it can be steered around
+ * by anything that reaches the model (a customer message, injected text).
  *
  * Setup:
  *   export MOLLIE_API_KEY="test_xxx"
@@ -11,6 +14,7 @@
  *   npx tsx index.ts
  */
 
+import { createInterface } from "node:readline/promises";
 import { MollieAgentToolkit } from "@mollie/agent-toolkit";
 import { toLangChainTools } from "@mollie/agent-toolkit/langchain";
 import { ChatOpenAI } from "@langchain/openai";
@@ -22,6 +26,73 @@ const toolkit = new MollieAgentToolkit({
   tools: ["list_payments", "get_payment", "list_refunds", "create_refund"],
 });
 
+// Raw tool access (not the LangChain-wrapped/JSON-stringified form) so the
+// refund gate below can fetch the real payment and compare amounts directly.
+const rawTools = toolkit.getTools();
+const getPayment = rawTools.find((t) => t.name === "get_payment")!;
+
+function audit(event: string, details: Record<string, unknown>) {
+  console.error(`[audit] ${new Date().toISOString()} ${event}`, JSON.stringify(details));
+}
+
+async function confirmRefund(paymentId: string, amount?: { currency: string; value: string }) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const label = amount ? `${amount.value} ${amount.currency}` : "the full remaining amount";
+    const answer = await rl.question(
+      `\nAgent wants to refund ${label} on payment ${paymentId}. Approve? (y/N) `,
+    );
+    return answer.trim().toLowerCase() === "y";
+  } finally {
+    rl.close();
+  }
+}
+
+const langChainTools = toLangChainTools(toolkit).map((tool) => {
+  if (tool.name !== "create_refund") return tool;
+
+  return {
+    ...tool,
+    invoke: async (params: unknown) => {
+      const { paymentId, refundRequest } = params as {
+        paymentId: string;
+        refundRequest?: { amount?: { currency: string; value: string }; description?: string };
+      };
+      const requestedAmount = refundRequest?.amount;
+
+      // Fetch the real payment before asking for approval — never trust a
+      // model-proposed amount without checking it against the source of truth.
+      const payment = (await getPayment.execute({ paymentId })) as {
+        amount: { currency: string; value: string };
+      };
+
+      if (requestedAmount) {
+        // Simple ceiling check for the example. Don't use parseFloat for real
+        // money in production — use a decimal library instead.
+        const requested = parseFloat(requestedAmount.value);
+        const original = parseFloat(payment.amount.value);
+        if (requestedAmount.currency !== payment.amount.currency || requested > original) {
+          audit("refund_blocked_by_validation", { paymentId, requestedAmount, actualAmount: payment.amount });
+          return JSON.stringify({
+            error: `Refund amount ${requestedAmount.value} ${requestedAmount.currency} exceeds or mismatches the payment's actual amount (${payment.amount.value} ${payment.amount.currency}). Refund not processed.`,
+          });
+        }
+      }
+
+      const approved = await confirmRefund(paymentId, requestedAmount);
+      audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest });
+
+      if (!approved) {
+        return JSON.stringify({ error: "Refund was not approved by the operator. Refund not processed." });
+      }
+
+      const result = await tool.invoke(params);
+      audit("refund_executed", { paymentId, refundRequest });
+      return result;
+    },
+  };
+});
+
 const llm = new ChatOpenAI({ model: "gpt-5.5", temperature: 0 });
 
 const prompt = ChatPromptTemplate.fromMessages([
@@ -29,14 +100,15 @@ const prompt = ChatPromptTemplate.fromMessages([
     "system",
     "You are a customer support agent for a Mollie merchant. " +
       "Help customers with payment questions and process refund requests. " +
-      "Always confirm the payment details before issuing a refund.",
+      "Refunds require operator approval on the terminal before they take effect — " +
+      "if approval is denied, tell the customer their refund could not be processed and to contact support.",
   ],
   ["human", "{input}"],
   ["placeholder", "{agent_scratchpad}"],
 ]);
 
-const agent = createToolCallingAgent({ llm, tools: toLangChainTools(toolkit), prompt });
-const executor = new AgentExecutor({ agent, tools: toLangChainTools(toolkit), verbose: true });
+const agent = createToolCallingAgent({ llm, tools: langChainTools, prompt });
+const executor = new AgentExecutor({ agent, tools: langChainTools, verbose: true });
 
 const result = await executor.invoke({
   input: process.argv[2] ?? "Show me the last 5 payments",
