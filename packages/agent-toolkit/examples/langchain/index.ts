@@ -29,7 +29,13 @@ const toolkit = new MollieAgentToolkit({
 // Raw tool access (not the LangChain-wrapped/JSON-stringified form) so the
 // refund gate below can fetch the real payment and compare amounts directly.
 const rawTools = toolkit.getTools();
-const getPayment = rawTools.find((t) => t.name === "get_payment")!;
+const getPayment = rawTools.find((t) => t.name === "get_payment");
+if (!getPayment) {
+  throw new Error(
+    'The refund gate below requires "get_payment" to validate refund amounts — ' +
+      'add it to the `tools` list passed to MollieAgentToolkit.',
+  );
+}
 
 function audit(event: string, details: Record<string, unknown>) {
   console.error(`[audit] ${new Date().toISOString()} ${event}`, JSON.stringify(details));
@@ -62,19 +68,35 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
 
       // Fetch the real payment before asking for approval — never trust a
       // model-proposed amount without checking it against the source of truth.
-      const payment = (await getPayment.execute({ paymentId })) as {
+      let payment: {
         amount: { currency: string; value: string };
+        amountRemaining?: { currency: string; value: string };
       };
+      try {
+        payment = (await getPayment.execute({ paymentId })) as {
+          amount: { currency: string; value: string };
+          amountRemaining?: { currency: string; value: string };
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        audit("refund_blocked_by_lookup_failure", { paymentId, error: message });
+        return JSON.stringify({
+          error: `Could not look up payment ${paymentId} before refunding (${message}). Refund not processed.`,
+        });
+      }
 
       if (requestedAmount) {
         // Simple ceiling check for the example. Don't use parseFloat for real
         // money in production — use a decimal library instead.
+        // Compare against what's still refundable, not the original charge —
+        // a payment that's already been partially refunded has less left to give.
+        const remaining = payment.amountRemaining ?? payment.amount;
         const requested = parseFloat(requestedAmount.value);
-        const original = parseFloat(payment.amount.value);
-        if (requestedAmount.currency !== payment.amount.currency || requested > original) {
-          audit("refund_blocked_by_validation", { paymentId, requestedAmount, actualAmount: payment.amount });
+        const available = parseFloat(remaining.value);
+        if (requestedAmount.currency !== remaining.currency || requested > available) {
+          audit("refund_blocked_by_validation", { paymentId, requestedAmount, remainingAmount: remaining });
           return JSON.stringify({
-            error: `Refund amount ${requestedAmount.value} ${requestedAmount.currency} exceeds or mismatches the payment's actual amount (${payment.amount.value} ${payment.amount.currency}). Refund not processed.`,
+            error: `Refund amount ${requestedAmount.value} ${requestedAmount.currency} exceeds or mismatches the payment's remaining refundable amount (${remaining.value} ${remaining.currency}). Refund not processed.`,
           });
         }
       }
