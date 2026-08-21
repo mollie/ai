@@ -32,6 +32,8 @@ These require different playbooks — ask before proceeding.
    ```bash
    # Node.js
    npm list @mollie/api-client
+   # TypeScript
+   npm list mollie-api-typescript
    # PHP
    composer show mollie/mollie-api-php
    # Python

@@ -48,6 +48,9 @@ const capture = await mollie.paymentCaptures.create({
 });
 ```
 
+- Requires `payments.write` scope (API key, advanced access token, or OAuth token) —
+  Mollie has no separate scope for captures; confirm against current docs before
+  shipping.
 - Some methods support **multiple partial captures** — after a partial capture
   succeeds, the remaining authorized amount stays available and the payment remains
   `authorized`. Once the full amount is captured, status moves to `paid`.
