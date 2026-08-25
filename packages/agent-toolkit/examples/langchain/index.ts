@@ -101,7 +101,14 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         const remaining = payment.amountRemaining ?? payment.amount;
         const requested = parseFloat(requestedAmount.value);
         const available = parseFloat(remaining.value);
-        if (requestedAmount.currency !== remaining.currency || requested > available) {
+        // NaN > available is false, so a malformed value (empty string, "full",
+        // a locale-formatted "10,00") would otherwise sail straight past this
+        // guard instead of being blocked — check for it explicitly.
+        if (
+          Number.isNaN(requested) ||
+          requestedAmount.currency !== remaining.currency ||
+          requested > available
+        ) {
           audit("refund_blocked_by_validation", { paymentId, requestedAmount, remainingAmount: remaining });
           return JSON.stringify({
             error: `Refund amount ${requestedAmount.value} ${requestedAmount.currency} exceeds or mismatches the payment's remaining refundable amount (${remaining.value} ${remaining.currency}). Refund not processed.`,
