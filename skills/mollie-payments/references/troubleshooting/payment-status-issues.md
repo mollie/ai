@@ -57,15 +57,23 @@ app.post('/webhooks/mollie', async (req, res) => {
   const payment = await mollie.payments.get(req.body.id);
   if (payment.status !== 'paid') return;
 
-  // Make fulfilment idempotent — check before acting, don't just append
+  // Claim the order atomically — two concurrent webhook deliveries can both
+  // read fulfilled=false before either writes, so a plain "check then update"
+  // isn't enough to stop both from fulfilling. Let the database enforce it:
+  // only the caller whose UPDATE actually changes a row proceeds.
   const order = await db.orders.findById(payment.metadata.orderId);
-  if (order.fulfilled) return;  // already handled by an earlier webhook call
+  const { rowCount } = await db.orders.updateWhere(
+    { id: order.id, fulfilled: false },
+    { fulfilled: true },
+  );
+  if (rowCount === 0) return;  // already claimed by another webhook delivery
 
   await fulfillOrder(order);
-  await db.orders.update(order.id, { fulfilled: true });
 });
 ```
 
 If fulfilment isn't idempotent (e.g. it emails a receipt or ships an item), a
-retried webhook will do it twice. Guard on a stored "already fulfilled" flag, not on
-the webhook arriving only once.
+retried webhook will do it twice. The guard above must be a single atomic
+conditional write (`UPDATE ... WHERE fulfilled = false`, or a transaction with
+`SELECT ... FOR UPDATE`) — a separate read followed by a separate write leaves a
+window where two concurrent deliveries both pass the check before either writes.

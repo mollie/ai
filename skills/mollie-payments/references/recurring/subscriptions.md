@@ -41,7 +41,12 @@ const subscription = await mollie.customerSubscriptions.create({
 ## Matching subscription-generated payments in your webhook
 
 Mollie creates the payment automatically — your system won't already know its ID
-when the webhook arrives. Match on `subscriptionId` instead:
+when the webhook arrives. Match on `subscriptionId` instead.
+
+This is a routing fragment to add inside your existing webhook handler (see
+`<references/payments/webhooks.md>`), not a standalone handler — a webhook fires
+for every payment, subscription-generated or not, and the `else` branch below
+must still run your normal one-off payment logic:
 
 ```javascript
 app.post('/webhooks/mollie', async (req, res) => {
@@ -49,8 +54,11 @@ app.post('/webhooks/mollie', async (req, res) => {
   const payment = await mollie.payments.get(req.body.id);
 
   if (payment.subscriptionId) {
-    // This is a subscription-generated charge, not a one-off payment
+    // Subscription-generated charge — not a one-off payment
     await handleSubscriptionCharge(payment);
+  } else {
+    // Regular one-off payment — your existing fulfilment logic goes here
+    await handleRegularPayment(payment);
   }
 });
 ```

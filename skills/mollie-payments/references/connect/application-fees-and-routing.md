@@ -10,19 +10,17 @@ When creating a payment on behalf of a connected client, the platform can specif
 fee that moves to the platform's balance whenever the payment succeeds.
 
 ```javascript
-const payment = await mollie.payments.create(
-  {
-    amount: { currency: 'EUR', value: '99.00' },
-    description: 'Order #4567',
-    redirectUrl: 'https://client-shop.example.com/orders/4567/complete',
-    webhookUrl: 'https://platform.example.com/webhooks/mollie',
-    applicationFee: {
-      amount: { currency: 'EUR', value: '4.95' },
-      description: 'Platform commission',
-    },
+const payment = await mollie.payments.create({
+  amount: { currency: 'EUR', value: '99.00' },
+  description: 'Order #4567',
+  redirectUrl: 'https://client-shop.example.com/orders/4567/complete',
+  webhookUrl: 'https://platform.example.com/webhooks/mollie',
+  applicationFee: {
+    amount: { currency: 'EUR', value: '4.95' },
+    description: 'Platform commission',
   },
-  { testmode: false },
-);
+  testmode: true,  // set explicitly when testing — see note below
+});
 ```
 
 - The fee is only collected if the underlying payment succeeds — a failed or
@@ -30,6 +28,11 @@ const payment = await mollie.payments.create(
 - This call is made with the **client's** access token (the payment belongs to
   them), not the platform's own credentials — see
   `<references/connect/permissions-and-tokens.md>`.
+- Unlike the API-key examples elsewhere in this skill, Connect calls authenticate
+  with an access token, which isn't `test_`/`live_` prefixed — mode isn't fixed by
+  the credential. Pass `testmode: true` explicitly to run in test mode, or omit it
+  entirely for live (it defaults to `false`). Passing `testmode` at all on a plain
+  API-key call is rejected by the API — only use it here, with an access token.
 
 ## Full vs. partial refunds and routing reversals
 
