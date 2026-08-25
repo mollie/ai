@@ -122,6 +122,18 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         if (typeof candidate.amount?.currency !== "string" || typeof candidate.amount?.value !== "string") {
           throw new Error(`unexpected payment response shape for ${paymentId}`);
         }
+        // amountRemaining is optional, but if present it must have the same
+        // shape as amount — otherwise a full refund (no requestedAmount, so
+        // the NaN/currency check below never runs) would fall through to a
+        // malformed `remaining` and show the operator a prompt like
+        // "null null (the full remaining amount)".
+        if (
+          candidate.amountRemaining &&
+          (typeof candidate.amountRemaining.currency !== "string" ||
+            typeof candidate.amountRemaining.value !== "string")
+        ) {
+          throw new Error(`unexpected amountRemaining shape for ${paymentId}`);
+        }
         payment = candidate as {
           amount: { currency: string; value: string };
           amountRemaining?: { currency: string; value: string };
