@@ -42,6 +42,14 @@ function audit(event: string, details: Record<string, unknown>) {
 }
 
 async function confirmRefund(paymentId: string, amount?: { currency: string; value: string }) {
+  if (!process.stdin.isTTY) {
+    // No one is at a terminal to approve this (CI, Docker, a test harness) —
+    // rl.question would otherwise hang forever waiting for a line that never
+    // comes. Default to denied rather than blocking indefinitely.
+    audit("refund_denied_non_interactive", { paymentId, amount });
+    return false;
+  }
+
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
     const label = amount ? `${amount.value} ${amount.currency}` : "the full remaining amount";
@@ -108,9 +116,17 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         return JSON.stringify({ error: "Refund was not approved by the operator. Refund not processed." });
       }
 
-      const result = await tool.invoke(params);
-      audit("refund_executed", { paymentId, refundRequest });
-      return result;
+      try {
+        const result = await tool.invoke(params);
+        audit("refund_executed", { paymentId, refundRequest });
+        return result;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        audit("refund_failed", { paymentId, refundRequest, error: message });
+        return JSON.stringify({
+          error: `Refund was approved but the Mollie API call failed (${message}). Refund not processed.`,
+        });
+      }
     },
   };
 });
