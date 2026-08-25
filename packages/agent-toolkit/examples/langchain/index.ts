@@ -195,8 +195,22 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
       }
 
       const confirmAmount = requestedAmount ?? remaining;
-      const approved = await confirmRefund(paymentId, confirmAmount, !requestedAmount);
-      audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest, confirmedAmount: confirmAmount });
+      let approved: boolean;
+      try {
+        approved = await confirmRefund(paymentId, confirmAmount, !requestedAmount);
+        audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest, confirmedAmount: confirmAmount });
+      } catch (err) {
+        // rl.question rejects (e.g. AbortError) if stdin closes while the
+        // prompt is pending — an operator Ctrl+D or a SIGHUP mid-approval.
+        // Without this catch that rejection would propagate straight out of
+        // invoke, skipping the audit entry at exactly the decision point this
+        // example's safety guarantee depends on. Treat it as a denial.
+        const message = err instanceof Error ? err.message : String(err);
+        audit("refund_error", { paymentId, refundRequest, confirmedAmount: confirmAmount, error: message });
+        return JSON.stringify({
+          error: `Could not obtain operator confirmation (${message}). Refund not processed.`,
+        });
+      }
 
       if (!approved) {
         return JSON.stringify({ error: "Refund was not approved by the operator. Refund not processed." });
