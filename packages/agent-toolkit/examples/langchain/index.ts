@@ -185,6 +185,7 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
           Number.isNaN(available) ||
           typeof requestedAmount.currency !== "string" ||
           requestedAmount.currency.toUpperCase() !== remaining.currency.toUpperCase() ||
+          requested <= 0 ||
           requested > available
         ) {
           audit("refund_blocked_by_validation", { paymentId, requestedAmount, remainingAmount: remaining });
