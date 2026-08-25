@@ -70,9 +70,17 @@ const payment = await mollie.payments.create({
 ## 2. Wait for `authorized` status
 
 The payment reaches `authorized` after the customer completes checkout. It stays
-`authorized` until you capture it or the authorization expires — check Klarna's
-current authorization window before relying on it (28 days at time of writing, but
-confirm against current docs before shipping).
+`authorized` until you capture it or the authorization expires — check the current
+authorization window for your method before relying on it:
+
+- **Klarna**: 28 days at time of writing, but confirm against current docs before
+  shipping.
+- **Credit cards**: capped at up to 7 days in practice — the exact window depends
+  on the card's issuer and isn't known upfront, so don't assume the full 7 days is
+  guaranteed. Confirm against current docs before shipping.
+
+Once an authorization expires, the reserved funds are released and the payment
+moves to `expired` — capture is no longer possible after that point.
 
 ## 3. Capture when ready to fulfil
 

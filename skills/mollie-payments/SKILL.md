@@ -68,7 +68,7 @@ or hosted checkout — just executed via a client's access token).
 **Recurring** → route to `<references/recurring/customers-and-mandates.md>` — this
 is a distinct flow (Customers API → first payment → mandate → subscription or
 on-demand charge), not a variant of one-time checkout. Webhook handling still
-applies (`<references/payments/webhooks.md>`), but skip Steps 4 below.
+applies (`<references/payments/webhooks.md>`), but skip Step 4 below.
 
 **One-time** → continue to Step 4.
 

@@ -128,6 +128,9 @@ const prompt = ChatPromptTemplate.fromMessages([
 const tools = toLangChainTools(toolkit);
 const agent = createToolCallingAgent({ llm, tools, prompt });
 const executor = new AgentExecutor({ agent, tools });
+
+const result = await executor.invoke({ input: "List my last 5 payments" });
+console.log(result.output);
 ```
 
 For a full working example with write-tool confirmation enforced in code (not
