@@ -101,11 +101,13 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         const remaining = payment.amountRemaining ?? payment.amount;
         const requested = parseFloat(requestedAmount.value);
         const available = parseFloat(remaining.value);
-        // NaN > available is false, so a malformed value (empty string, "full",
-        // a locale-formatted "10,00") would otherwise sail straight past this
-        // guard instead of being blocked — check for it explicitly.
+        // NaN comparisons are always false, so a malformed value on either side
+        // (empty string, "full", a locale-formatted "10,00", or an unexpected
+        // API shape for `remaining`) would otherwise sail straight past this
+        // guard instead of being blocked — check both explicitly.
         if (
           Number.isNaN(requested) ||
+          Number.isNaN(available) ||
           requestedAmount.currency !== remaining.currency ||
           requested > available
         ) {
