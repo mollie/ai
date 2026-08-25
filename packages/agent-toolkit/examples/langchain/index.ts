@@ -41,7 +41,11 @@ function audit(event: string, details: Record<string, unknown>) {
   console.error(`[audit] ${new Date().toISOString()} ${event}`, JSON.stringify(details));
 }
 
-async function confirmRefund(paymentId: string, amount?: { currency: string; value: string }) {
+async function confirmRefund(
+  paymentId: string,
+  amount: { currency: string; value: string },
+  isFullRefund: boolean,
+) {
   if (!process.stdin.isTTY) {
     // No one is at a terminal to approve this (CI, Docker, a test harness) —
     // rl.question would otherwise hang forever waiting for a line that never
@@ -52,7 +56,11 @@ async function confirmRefund(paymentId: string, amount?: { currency: string; val
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
-    const label = amount ? `${amount.value} ${amount.currency}` : "the full remaining amount";
+    // Always show the actual figure — a vague "the full remaining amount" gives
+    // the operator nothing to actually approve or reject against.
+    const label = isFullRefund
+      ? `${amount.value} ${amount.currency} (the full remaining amount)`
+      : `${amount.value} ${amount.currency}`;
     const answer = await rl.question(
       `\nAgent wants to refund ${label} on payment ${paymentId}. Approve? (y/N) `,
     );
@@ -69,9 +77,20 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
     ...tool,
     invoke: async (params: unknown) => {
       const { paymentId, refundRequest } = params as {
-        paymentId: string;
+        paymentId?: unknown;
         refundRequest?: { amount?: { currency: string; value: string }; description?: string };
       };
+
+      // The cast above is compile-time only — a malformed tool schema or an LLM
+      // that sends the wrong key (e.g. payment_id) would otherwise reach the API
+      // call as `undefined` and surface a cryptic "payment undefined" error.
+      if (typeof paymentId !== "string" || paymentId.length === 0) {
+        audit("refund_blocked_by_invalid_params", { params });
+        return JSON.stringify({
+          error: "create_refund was called without a valid paymentId string. Refund not processed.",
+        });
+      }
+
       const requestedAmount = refundRequest?.amount;
 
       // Fetch the real payment before asking for approval — never trust a
@@ -93,12 +112,15 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         });
       }
 
+      // Compare against what's still refundable, not the original charge — a
+      // payment that's already been partially refunded has less left to give.
+      // Resolved unconditionally so the confirmation prompt below always shows
+      // a real figure, even for a full refund with no requested amount.
+      const remaining = payment.amountRemaining ?? payment.amount;
+
       if (requestedAmount) {
         // Simple ceiling check for the example. Don't use parseFloat for real
         // money in production — use a decimal library instead.
-        // Compare against what's still refundable, not the original charge —
-        // a payment that's already been partially refunded has less left to give.
-        const remaining = payment.amountRemaining ?? payment.amount;
         const requested = parseFloat(requestedAmount.value);
         const available = parseFloat(remaining.value);
         // NaN comparisons are always false, so a malformed value on either side
@@ -118,8 +140,9 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         }
       }
 
-      const approved = await confirmRefund(paymentId, requestedAmount);
-      audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest });
+      const confirmAmount = requestedAmount ?? remaining;
+      const approved = await confirmRefund(paymentId, confirmAmount, !requestedAmount);
+      audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest, confirmedAmount: confirmAmount });
 
       if (!approved) {
         return JSON.stringify({ error: "Refund was not approved by the operator. Refund not processed." });
