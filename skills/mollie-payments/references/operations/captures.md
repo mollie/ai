@@ -17,20 +17,55 @@ the order actually ships.
 
 ```javascript
 const payment = await mollie.payments.create({
-  method: 'klarnapaylater',
+  method: 'creditcard',
   captureMode: 'manual',
   amount: { currency: 'EUR', value: '99.00' },
   description: 'Order #4567',
   redirectUrl: 'https://example.com/orders/4567/complete',
   webhookUrl: 'https://example.com/webhooks/mollie',
-  // Klarna specifically requires order lines and address data on the payment —
-  // see Klarna-specific docs before shipping this to production.
 });
 ```
 
 If the customer completes the payment with a method that doesn't support manual
 capture, the payment goes straight to `paid` — check the resulting `status`, don't
 assume `authorized`.
+
+**Klarna Pay Later / Slice It need more than this.** Unlike credit cards, Klarna
+requires order lines and address data on the payment for its own credit
+evaluation — creating a `klarnapaylater`/`klarnaslicit` payment with only the
+fields above will fail validation, not just silently skip manual capture:
+
+```javascript
+const payment = await mollie.payments.create({
+  method: 'klarnapaylater',
+  captureMode: 'manual',
+  amount: { currency: 'EUR', value: '99.00' },
+  description: 'Order #4567',
+  redirectUrl: 'https://example.com/orders/4567/complete',
+  webhookUrl: 'https://example.com/webhooks/mollie',
+  lines: [
+    {
+      description: 'Product name',
+      quantity: 1,
+      unitPrice: { currency: 'EUR', value: '99.00' },
+      totalAmount: { currency: 'EUR', value: '99.00' },
+      vatRate: '21.00',
+      vatAmount: { currency: 'EUR', value: '17.19' },
+    },
+  ],
+  billingAddress: {
+    givenName: 'Jane',
+    familyName: 'Doe',
+    email: 'jane@example.com',
+    streetAndNumber: 'Main St 1',
+    postalCode: '1234AB',
+    city: 'Amsterdam',
+    country: 'NL',
+  },
+  // See Klarna-specific docs for the full required/optional field set
+  // (shippingAddress, per-line vatRate rules, etc.) before shipping this.
+});
+```
 
 ## 2. Wait for `authorized` status
 

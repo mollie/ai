@@ -121,7 +121,11 @@ also works against legacy orders' underlying payments.
 6. Consolidate refund logic onto the single payment-refund endpoint.
 7. **Migrate stored references from Order IDs to Payment IDs.** Use `embed=payments`
    on existing List/Get Order calls to find the underlying payment ID and confirm its
-   status matches the order's status before cutting over stored references.
+   status matches the order's status before cutting over stored references. Run this
+   as a pre-deploy backfill, or ship it atomically with steps 2–6 in the same
+   release — not after. Steps 2–6 already make the codebase expect Payment IDs; any
+   lookup that runs between that deploy and a separately-completed backfill will fail
+   against a database that still holds Order IDs.
 8. **Webhook caveat**: payments created without a `webhookUrl` under the old Orders
    flow will reference the Order ID in webhook payloads, not a Payment ID — account
    for this if webhook handlers are being updated in the same pass.
