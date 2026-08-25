@@ -23,7 +23,9 @@ Apply these rules whenever generating code for any operation in this folder.
 - **Log before and after.** Any code path that calls a refund, capture, or
   cancellation endpoint should log the actor (which user/system triggered it), the
   amount, and the resulting status — this is the audit trail when something needs
-  investigating later.
+  investigating later. Redact or mask sensitive fields — card numbers, IBAN-adjacent
+  routing details, customer identifiers — before writing request/response data to
+  logs; the audit trail does not need them unmasked to be useful.
 - **Test mode first.** Verify the full flow — including the failure path — with
   `test_xxx` credentials before pointing the same code at `live_xxx`.
 

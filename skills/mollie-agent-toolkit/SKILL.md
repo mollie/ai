@@ -81,17 +81,27 @@ const toolkit = new MollieAgentToolkit({
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
 
-const response = await openai.chat.completions.create({
-  model: "gpt-5.5",
-  tools: toOpenAITools(toolkit),
-  messages: [{ role: "user", content: "List my last 5 payments" }],
-});
+const tools = toOpenAITools(toolkit);
+const messages = [{ role: "user", content: "List my last 5 payments" }];
 
-// For each tool call the model returns, execute it against the same allowlisted
-// toolkit — executeOpenAIToolCall looks the tool up by name, so a call for
-// anything outside `tools` above simply isn't found.
-for (const toolCall of response.choices[0].message.tool_calls ?? []) {
-  const result = await executeOpenAIToolCall(toolkit, toolCall);
+const response = await openai.chat.completions.create({ model: "gpt-5.5", tools, messages });
+const toolCalls = response.choices[0].message.tool_calls ?? [];
+
+// The raw OpenAI API doesn't drive the tool-use loop for you (unlike the Vercel
+// AI SDK example above) — feed each result back as a "tool" message, keyed by
+// tool_call_id, and call the API again so the model can see what the tools
+// returned and produce an actual answer.
+if (toolCalls.length > 0) {
+  messages.push(response.choices[0].message);
+  for (const toolCall of toolCalls) {
+    // executeOpenAIToolCall looks the tool up by name, so a call for anything
+    // outside `tools` above simply isn't found.
+    const result = await executeOpenAIToolCall(toolkit, toolCall);
+    messages.push({ role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result) });
+  }
+
+  const final = await openai.chat.completions.create({ model: "gpt-5.5", tools, messages });
+  console.log(final.choices[0].message.content);
 }
 ```
 
@@ -225,6 +235,12 @@ Log the tool name, arguments, the confirming actor (human or authorization check
 and the result for every write-tool execution — this is what lets someone
 reconstruct what an agent did and why, after the fact. Read-only tools don't need
 this level of logging; every write tool does.
+
+Tool arguments and results can carry masked card data, IBAN-adjacent routing
+details, or customer identifiers — redact or mask sensitive fields before writing
+them to logs, the same as `<mollie-payments:references/operations/write-action-safety.md>`
+requires elsewhere. Audit logging is not a reason to log unmasked PII or financial
+account identifiers at `info`/`debug` level.
 
 ## Common mistakes
 
