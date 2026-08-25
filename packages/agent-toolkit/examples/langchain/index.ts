@@ -54,13 +54,15 @@ async function confirmRefund(
   paymentId: string,
   amount: { currency: string; value: string },
   isFullRefund: boolean,
-) {
+): Promise<{ approved: boolean; reason?: string }> {
   if (!process.stdin.isTTY) {
     // No one is at a terminal to approve this (CI, Docker, a test harness) —
     // rl.question would otherwise hang forever waiting for a line that never
-    // comes. Default to denied rather than blocking indefinitely.
-    audit("refund_denied_non_interactive", { paymentId, amount });
-    return false;
+    // comes. Default to denied rather than blocking indefinitely. Don't audit
+    // here — the call site in invoke logs a single event per decision and
+    // includes this as the reason, so the trail doesn't get two entries for
+    // one denial.
+    return { approved: false, reason: "non_interactive" };
   }
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -73,7 +75,7 @@ async function confirmRefund(
     const answer = await rl.question(
       `\nAgent wants to refund ${label} on payment ${paymentId}. Approve? (y/N) `,
     );
-    return answer.trim().toLowerCase() === "y";
+    return { approved: answer.trim().toLowerCase() === "y" };
   } finally {
     rl.close();
   }
@@ -196,10 +198,19 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
       }
 
       const confirmAmount = requestedAmount ?? remaining;
-      let approved: boolean;
+      let confirmation: { approved: boolean; reason?: string };
       try {
-        approved = await confirmRefund(paymentId, confirmAmount, !requestedAmount);
-        audit(approved ? "refund_approved" : "refund_denied", { paymentId, refundRequest, confirmedAmount: confirmAmount });
+        confirmation = await confirmRefund(paymentId, confirmAmount, !requestedAmount);
+        // Single audit call for the whole decision — confirmRefund reports why
+        // via `reason` instead of auditing itself, so a non-interactive denial
+        // doesn't produce two log entries (one from confirmRefund, one here)
+        // for the same event.
+        audit(confirmation.approved ? "refund_approved" : "refund_denied", {
+          paymentId,
+          refundRequest,
+          confirmedAmount: confirmAmount,
+          ...(confirmation.reason ? { reason: confirmation.reason } : {}),
+        });
       } catch (err) {
         // rl.question rejects (e.g. AbortError) if stdin closes while the
         // prompt is pending — an operator Ctrl+D or a SIGHUP mid-approval.
@@ -213,7 +224,7 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         });
       }
 
-      if (!approved) {
+      if (!confirmation.approved) {
         return JSON.stringify({ error: "Refund was not approved by the operator. Refund not processed." });
       }
 
