@@ -85,6 +85,17 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
   return {
     ...tool,
     invoke: async (params: unknown) => {
+      // Guard before destructuring — the Zod schema should prevent params from
+      // being null/undefined, but that can't be guaranteed across every
+      // LangChain call path, and destructuring a non-object throws before any
+      // guard or audit call below is reached.
+      if (params === null || typeof params !== "object") {
+        audit("refund_blocked_by_invalid_params", { params });
+        return JSON.stringify({
+          error: "create_refund was called with invalid params (expected an object). Refund not processed.",
+        });
+      }
+
       const { paymentId, refundRequest } = params as {
         paymentId?: unknown;
         refundRequest?: { amount?: { currency: string; value: string }; description?: string };
