@@ -8,7 +8,7 @@ Before writing any refund code, read `<references/operations/write-action-safety
 // Node.js — @mollie/api-client
 const refund = await mollie.paymentRefunds.create({
   paymentId: 'tr_WDqYK6vllg',
-  amount: { currency: 'EUR', value: '15.00' },  // omit only if refunding the full amount
+  amount: { currency: 'EUR', value: '15.00' },  // set to the original payment amount for a full refund
   description: 'Order #4567 — item returned',   // shown to the customer, max 255 chars
 });
 ```
