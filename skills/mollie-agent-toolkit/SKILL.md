@@ -109,12 +109,21 @@ if (toolCalls.length > 0) {
 // LangChain — read-only agent, safe to run first
 import { MollieAgentToolkit } from "@mollie/agent-toolkit";
 import { toLangChainTools } from "@mollie/agent-toolkit/langchain";
+import { ChatOpenAI } from "@langchain/openai";
 import { createToolCallingAgent, AgentExecutor } from "langchain/agents";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 const toolkit = new MollieAgentToolkit({
   apiKey: process.env.MOLLIE_API_KEY!,
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
+
+const llm = new ChatOpenAI({ model: "gpt-5.5", temperature: 0 });
+const prompt = ChatPromptTemplate.fromMessages([
+  ["system", "You are a helpful assistant with access to Mollie payment data."],
+  ["human", "{input}"],
+  ["placeholder", "{agent_scratchpad}"],
+]);
 
 const tools = toLangChainTools(toolkit);
 const agent = createToolCallingAgent({ llm, tools, prompt });
