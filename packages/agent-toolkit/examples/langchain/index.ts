@@ -38,7 +38,16 @@ if (!getPayment) {
 }
 
 function audit(event: string, details: Record<string, unknown>) {
-  console.error(`[audit] ${new Date().toISOString()} ${event}`, JSON.stringify(details));
+  // details can contain LLM-originated params of unknown shape — a circular
+  // reference (or a stringify-unsafe value) must not turn the audit call
+  // itself into a crash path.
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(details);
+  } catch {
+    serialized = "[unserializable]";
+  }
+  console.error(`[audit] ${new Date().toISOString()} ${event}`, serialized);
 }
 
 async function confirmRefund(
@@ -100,7 +109,20 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         amountRemaining?: { currency: string; value: string };
       };
       try {
-        payment = (await getPayment.execute({ paymentId })) as {
+        const rawPayment = await getPayment.execute({ paymentId });
+        // getPayment.execute returns `unknown` — the cast above it is
+        // compile-time only. If the SDK ever returns an unexpected shape (API
+        // version mismatch, a response envelope, etc.), payment.amount would
+        // be undefined and throw later, outside this catch. Check the shape
+        // now so a malformed response fails the same way a lookup error does.
+        const candidate = rawPayment as {
+          amount?: { currency?: unknown; value?: unknown };
+          amountRemaining?: { currency?: unknown; value?: unknown };
+        };
+        if (typeof candidate.amount?.currency !== "string" || typeof candidate.amount?.value !== "string") {
+          throw new Error(`unexpected payment response shape for ${paymentId}`);
+        }
+        payment = candidate as {
           amount: { currency: string; value: string };
           amountRemaining?: { currency: string; value: string };
         };
