@@ -44,8 +44,15 @@ able to receive payouts yet.
 const capabilities = await mollie.organizations.getCapabilities(clientOrganizationId);
 ```
 
-Do not let application code assume a freshly onboarded client is immediately
-payment-capable — poll or check capabilities before routing real traffic to them.
+- This is an organization-level endpoint — a plain API key doesn't have access to
+  it at all. Authenticate `mollie` with the **client's OAuth access token** (the
+  same pattern as `<references/connect/application-fees-and-routing.md>`: act on
+  their behalf, not the platform's own credentials). Using the platform's own
+  advanced/organization access token instead would check the platform's own
+  capabilities, not the client's — confirm the exact token/scope requirement
+  against current docs before shipping.
+- Do not let application code assume a freshly onboarded client is immediately
+  payment-capable — poll or check capabilities before routing real traffic to them.
 
 ## Common mistakes
 

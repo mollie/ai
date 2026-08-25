@@ -106,19 +106,22 @@ also works against legacy orders' underlying payments.
 
 ### Migration steps, in order
 
-1. Replace *create order* calls with *create payment*, adjusting the field
+1. **Pre-migration gate: check for orders still in `authorized` status.** Those
+   can't use the Captures API directly — resolve them under the old flow first.
+   Do this before any of the steps below land in production, otherwise those
+   orders end up with the old shipment path gone and the new Captures path unable
+   to operate on them yet.
+2. Replace *create order* calls with *create payment*, adjusting the field
    differences above.
-2. Add `captureMode: 'manual'` anywhere a hold-then-capture flow is required.
-3. Replace Shipments-API fulfilment logic with Captures-API calls — but only once a
+3. Add `captureMode: 'manual'` anywhere a hold-then-capture flow is required.
+4. Replace Shipments-API fulfilment logic with Captures-API calls — but only once a
    given transaction is fully off the Orders flow.
-4. Replace order/line cancellation with the release-authorization endpoint; flag any
+5. Replace order/line cancellation with the release-authorization endpoint; flag any
    partial-cancellation logic that has no direct equivalent.
-5. Consolidate refund logic onto the single payment-refund endpoint.
-6. **Migrate stored references from Order IDs to Payment IDs.** Use `embed=payments`
+6. Consolidate refund logic onto the single payment-refund endpoint.
+7. **Migrate stored references from Order IDs to Payment IDs.** Use `embed=payments`
    on existing List/Get Order calls to find the underlying payment ID and confirm its
    status matches the order's status before cutting over stored references.
-7. **Check for orders still in `authorized` status** before migrating — those can't
-   use the Captures API directly; resolve them under the old flow first.
 8. **Webhook caveat**: payments created without a `webhookUrl` under the old Orders
    flow will reference the Order ID in webhook payloads, not a Payment ID — account
    for this if webhook handlers are being updated in the same pass.
