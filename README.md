@@ -6,7 +6,7 @@ Resources for building AI-powered integrations with Mollie.
 
 The plugin gives your AI coding assistant live access to your Mollie account via the [Mollie MCP server](https://docs.mollie.com/docs/mollie-mcp-server), plus integration skills that activate when you're building a Mollie integration.
 
-**Requires** a Mollie Advanced access token with `profile.read` scope. Set `MOLLIE_API_OAUTH_ORG_TOKEN` in your environment before installing.
+**Requires** a Mollie Advanced access token with `profile.read` scope. Set `MOLLIE_API_ADVANCED_ACCESS_TOKEN` in your environment before installing.
 
 ### Claude Code
 
@@ -65,7 +65,9 @@ Skills activate automatically when you're working on a Mollie integration. They 
 
 | Skill | Description |
 |---|---|
-| [`mollie-integration`](skills/mollie-integration/) | Payments, Mollie Components, hosted checkout, webhooks |
+| [`mollie-payments`](skills/mollie-payments/) | New integrations — payments, Connect (platforms/marketplaces), recurring/subscriptions, refunds/captures/settlements, troubleshooting |
+| [`mollie-upgrade`](skills/mollie-upgrade/) | SDK version upgrades, and migrating from the Orders API to the Payments API |
+| [`mollie-agent-toolkit`](skills/mollie-agent-toolkit/) | Building an AI agent that calls Mollie via `@mollie/agent-toolkit`, with write-tool safety guidance |
 
 ## Packages
 

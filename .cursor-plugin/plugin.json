@@ -1,7 +1,7 @@
 {
   "name": "mollie",
-  "version": "1.2.0",
-  "description": "Mollie payment integration — connects Cursor to your Mollie account via the Mollie MCP server and activates integration skills for payments, Mollie Components, webhooks, and Mollie Connect.",
+  "version": "1.3.0",
+  "description": "Mollie payment integration — connects Cursor to your Mollie account via the Mollie MCP server and activates skills for payments, Mollie Connect, recurring payments, refunds/operations, troubleshooting, SDK upgrades, and building Mollie-powered AI agents.",
   "author": {
     "name": "Mollie",
     "url": "https://mollie.com"

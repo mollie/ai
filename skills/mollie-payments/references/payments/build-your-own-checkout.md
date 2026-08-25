@@ -49,7 +49,7 @@ res.redirect(303, payment._links.checkout.href);
 
 ### Credit cards — embed the card form (Mollie Components)
 Skip the redirect for card data entry by embedding Mollie.js.
-→ See `<references/components.md>`
+→ See `<references/payments/components.md>`
 
 ### iDEAL — embed issuer selection
 Fetch issuers via the Methods API and render a bank picker in your UI.
@@ -82,4 +82,4 @@ external page. Pass `method` at payment creation and redirect to `_links.checkou
 
 ## Webhook handling is always required
 Regardless of integration depth, payment completion signals arrive server-side via webhook.
-→ See `<references/webhooks.md>`
+→ See `<references/payments/webhooks.md>`
