@@ -175,9 +175,15 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         // Mollie always returns uppercase ISO 4217 codes, but an LLM-proposed
         // currency isn't guaranteed to match case — normalize before comparing
         // so "eur" isn't treated as a mismatch against "EUR".
+        // requestedAmount.currency comes from the same compile-time-only cast
+        // as paymentId (see the guard above) — a non-string value (e.g. an
+        // LLM sending currency: null) would throw calling .toUpperCase()
+        // below, uncaught by any try/catch. Check the type first so this
+        // fails the same guarded way as every other malformed-input case.
         if (
           Number.isNaN(requested) ||
           Number.isNaN(available) ||
+          typeof requestedAmount.currency !== "string" ||
           requestedAmount.currency.toUpperCase() !== remaining.currency.toUpperCase() ||
           requested > available
         ) {
