@@ -69,6 +69,52 @@ const { text } = await generateText({
 });
 ```
 
+```typescript
+// OpenAI Agents SDK — read-only agent, safe to run first
+import OpenAI from "openai";
+import { MollieAgentToolkit } from "@mollie/agent-toolkit";
+import { toOpenAITools, executeOpenAIToolCall } from "@mollie/agent-toolkit/openai";
+
+const openai = new OpenAI();
+const toolkit = new MollieAgentToolkit({
+  apiKey: process.env.MOLLIE_API_KEY!,
+  tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
+});
+
+const response = await openai.chat.completions.create({
+  model: "gpt-5.5",
+  tools: toOpenAITools(toolkit),
+  messages: [{ role: "user", content: "List my last 5 payments" }],
+});
+
+// For each tool call the model returns, execute it against the same allowlisted
+// toolkit — executeOpenAIToolCall looks the tool up by name, so a call for
+// anything outside `tools` above simply isn't found.
+for (const toolCall of response.choices[0].message.tool_calls ?? []) {
+  const result = await executeOpenAIToolCall(toolkit, toolCall);
+}
+```
+
+```typescript
+// LangChain — read-only agent, safe to run first
+import { MollieAgentToolkit } from "@mollie/agent-toolkit";
+import { toLangChainTools } from "@mollie/agent-toolkit/langchain";
+import { createToolCallingAgent, AgentExecutor } from "langchain/agents";
+
+const toolkit = new MollieAgentToolkit({
+  apiKey: process.env.MOLLIE_API_KEY!,
+  tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
+});
+
+const tools = toLangChainTools(toolkit);
+const agent = createToolCallingAgent({ llm, tools, prompt });
+const executor = new AgentExecutor({ agent, tools });
+```
+
+For a full working example with write-tool confirmation enforced in code (not
+just a read-only agent), see
+`packages/agent-toolkit/examples/langchain/index.ts` in this repo.
+
 ---
 
 ## Step 2 — What does the agent actually need to do?
