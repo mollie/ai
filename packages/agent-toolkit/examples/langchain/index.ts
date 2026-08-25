@@ -172,10 +172,13 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
         // (empty string, "full", a locale-formatted "10,00", or an unexpected
         // API shape for `remaining`) would otherwise sail straight past this
         // guard instead of being blocked — check both explicitly.
+        // Mollie always returns uppercase ISO 4217 codes, but an LLM-proposed
+        // currency isn't guaranteed to match case — normalize before comparing
+        // so "eur" isn't treated as a mismatch against "EUR".
         if (
           Number.isNaN(requested) ||
           Number.isNaN(available) ||
-          requestedAmount.currency !== remaining.currency ||
+          requestedAmount.currency.toUpperCase() !== remaining.currency.toUpperCase() ||
           requested > available
         ) {
           audit("refund_blocked_by_validation", { paymentId, requestedAmount, remainingAmount: remaining });
