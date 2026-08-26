@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: mollie-upgrade-scaffolded-migration
+description: >
+  Seeds a real (fake) Orders-API integration file - Klarna pay-later with
+  authorize-then-ship, plus per-line cancellation - into the sandbox before asking
+  for a migration to the Payments API. Manually verified on 2026-08-25: the model
+  read the seeded file, correctly identified that partial-line cancellation has NO
+  direct Payments-API equivalent (matching the skill's own "flag this to the
+  developer rather than silently approximating it" rule), proposed a concrete
+  defer-to-final-capture design, named the tradeoff (no immediate authorization
+  shrink), and asked the developer to choose rather than guessing. Requires the
+  operator to pass --scaffold (scaffold scripts are off by default).
+expected_outcome: >
+  Reads src/orders.js, identifies the partial-cancellation gap explicitly, proposes
+  a concrete design instead of silently approximating, and asks before implementing.
+context:
+  scaffold_script: scaffold.sh
