@@ -163,6 +163,16 @@ const langChainTools = toLangChainTools(toolkit).map((tool) => {
       // payment that's already been partially refunded has less left to give.
       // Resolved unconditionally so the confirmation prompt below always shows
       // a real figure, even for a full refund with no requested amount.
+      //
+      // This is a snapshot, not a lock: the operator approval below is
+      // interactive and can take seconds or minutes, during which a
+      // concurrent refund (another operator, an automation, a webhook-driven
+      // process) can reduce the payment's real remaining balance. The ceiling
+      // check and the confirmation prompt both work off this snapshot, so
+      // they're a UX guardrail against obviously-wrong amounts, not the final
+      // enforcement boundary — Mollie's API re-validates the amount against
+      // the payment's true state when `tool.invoke` actually calls it below,
+      // and rejects the refund if it no longer fits.
       const remaining = payment.amountRemaining ?? payment.amount;
 
       if (requestedAmount) {
