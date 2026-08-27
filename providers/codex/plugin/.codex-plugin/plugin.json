@@ -9,5 +9,6 @@
   "homepage": "https://docs.mollie.com",
   "repository": "https://github.com/mollie/ai",
   "license": "MIT",
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
 }

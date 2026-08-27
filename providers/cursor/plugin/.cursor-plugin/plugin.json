@@ -9,6 +9,7 @@
   "homepage": "https://docs.mollie.com",
   "repository": "https://github.com/mollie/ai",
   "license": "MIT",
+  "keywords": ["mollie", "payments", "mcp", "checkout", "refunds", "subscriptions", "connect", "agent-toolkit"],
   "skills": "./skills/",
-  "mcp": "./.mcp.json"
+  "mcpServers": "./mcp.json"
 }
