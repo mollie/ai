@@ -127,12 +127,12 @@ a real model yet:
 
 - **Codex**: stages `skills/` into `.agents/skills/` in a temp workspace (Codex's
   documented Agent Skills discovery path — real installs get this from
-  `.codex-plugin/plugin.json`'s `"skills"` field via the plugin installer, which
-  this script doesn't replicate). Runs `codex exec ... -o <file>` and reads the
-  final message from that file. **Guessed, not doc-confirmed** — verify the
-  flags on first real run.
-- **Cursor**: copies the whole plugin checkout (`skills/`, `.cursor-plugin/`,
-  `.cursor/`, `.mcp.json`) into a temp workspace, since Cursor's exact
+  `providers/codex/plugin/.codex-plugin/plugin.json`'s `"skills"` field via the
+  plugin installer, which this script doesn't replicate). Runs
+  `codex exec ... -o <file>` and reads the final message from that file.
+  **Guessed, not doc-confirmed** — verify the flags on first real run.
+- **Cursor**: copies the whole `providers/cursor/plugin/` checkout (`skills/`,
+  `.cursor-plugin/`, `mcp.json`) into a temp workspace, since Cursor's exact
   skill-discovery path wasn't confirmed against current docs. Runs
   `cursor-agent -p ... --output-format json` and reads `.result`. **Guessed, not
   doc-confirmed.**

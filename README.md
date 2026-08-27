@@ -45,7 +45,7 @@ claude plugin marketplace update mollie
 
 ### Cursor
 
-Open this repository in Cursor — the MCP server is configured automatically via `.cursor/mcp.json`. To install the full plugin including skills, go to **Settings → Plugins → Add local plugin** and point it at this directory.
+Go to **Settings → Plugins → Add local plugin** and point it at [`providers/cursor/plugin`](providers/cursor/plugin/) — that's where the Mollie MCP server config and skills for Cursor live.
 
 ### Codex
 
@@ -58,6 +58,18 @@ codex plugin add github:mollie/ai
 ```bash
 gemini extensions install github:mollie/ai
 ```
+
+## Repository layout
+
+Skills are authored once in [`skills/`](skills/). Each tool's actual plugin — manifest, MCP config, and a copy of the skills — lives under `providers/<tool>/plugin/` (e.g. [`providers/claude/plugin`](providers/claude/plugin/)). The root `.claude-plugin/`, `.codex-plugin/`, and `.cursor-plugin/` folders only hold a `marketplace.json` pointer into the matching `providers/` directory.
+
+After editing `skills/` or a provider's `plugin.json`, run:
+
+```bash
+node ci/generate-providers.mjs
+```
+
+to re-copy skills into each `providers/*/plugin/skills/` and sync plugin versions into the marketplace files. CI (`ci/validate-structure.mjs`) fails if `providers/` drifts out of sync with `skills/`.
 
 ## Skills
 

@@ -1,6 +1,5 @@
 {
   "name": "mollie",
-  "description": "Mollie payment integration — MCP server access and integration skills for Claude Code",
   "owner": {
     "name": "Mollie",
     "email": "info@mollie.com"
@@ -8,8 +7,8 @@
   "plugins": [
     {
       "name": "mollie",
-      "source": "./providers/claude/plugin/",
-      "description": "Mollie payment integration — MCP server access and integration skills for Claude Code",
+      "source": "./providers/cursor/plugin/",
+      "description": "Mollie payment integration — MCP server access and integration skills for Cursor",
       "version": "1.3.0",
       "author": {
         "name": "Mollie",
