@@ -165,6 +165,9 @@ Pick the **smallest** tool set the task needs. Do not default to `ALL_TOOLS`.
 | `create_subscription` | Write | Initiates a recurring charge schedule — treat similarly to a money-moving tool since it has ongoing financial effect |
 | `list_sales_invoices`, `get_sales_invoice` | Read | |
 | `create_sales_invoice`, `update_sales_invoice` | Write | |
+| `list_payment_links`, `get_payment_link`, `list_payment_link_payments` | Read | A payment link has no status of its own — use `list_payment_link_payments` to check how a (reusable) link performed |
+| `create_payment_link` | **Write — creates a real, shareable payment surface** | Treat like `create_payment` — requires human confirmation |
+| `update_payment_link` | Write | Lower risk than creation, but still a real change to a live link |
 
 **Not available as toolkit tools**: captures, chargebacks, and mandate/subscription
 cancellation are not currently exposed by `@mollie/agent-toolkit`. If an agent needs
@@ -197,8 +200,9 @@ This allowlist alone does not add confirmation — see Step 3.
 ## Step 3 — Human confirmation for write tools
 
 Granting a tool to the agent is not the same as authorizing every call it makes.
-For `create_payment`, `create_refund`, and `create_subscription`, put an
-approval step between the model's tool call and its execution — e.g. surface the
+For `create_payment`, `create_refund`, `create_subscription`, and
+`create_payment_link`, put an approval step between the model's tool call and its
+execution — e.g. surface the
 proposed action (amount, target, reason) to a human before calling `execute()`, or
 require a second, server-side authorization check that isn't controlled by the
 model's own reasoning.
