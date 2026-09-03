@@ -33,10 +33,15 @@ router's quick table, or when a request touches more than one dimension at once
 - **Recurring / subscription / "charge them again next month"** → `<references/recurring/>`
 - **One-time** → continue to Dimension 4.
 
-## Dimension 4 — Hosted or custom checkout?
+## Dimension 4 — Hosted checkout, custom checkout, or a payment link?
 
-Already covered in the main router's Step 2 — see `<references/payments/hosted-checkout.md>`
+Already covered in the main router's Step 4 — see `<references/payments/hosted-checkout.md>`
 or `<references/payments/components.md>` / `<references/payments/build-your-own-checkout.md>`.
+
+If there's no live checkout session to redirect from at all — the request is about
+invoicing, phone/mail orders, donations, or sharing a link rather than embedding a
+checkout — that's a **payment link**, not A or B. Route to
+`<references/payments/payment-links.md>`.
 
 ## Dimension 5 — Is this a build task or an account operation?
 

@@ -86,8 +86,15 @@ applies (`<references/payments/webhooks.md>`), but skip Step 4 below.
 > (optionally) card fields directly in your UI. More work, but full control over
 > design and branding.
 >
+> **C) Payment link** — No embedded checkout at all. You share a URL with the
+> customer (email, SMS, chat, invoice, QR code) instead of redirecting from a live
+> session. Use this when there's no checkout page to redirect from — invoicing,
+> phone/mail orders, donations, social selling.
+>
 > Not sure? Hosted checkout takes ~30 minutes and handles everything for you. A
-> custom checkout takes longer but keeps customers on your page throughout.
+> custom checkout takes longer but keeps customers on your page throughout. If
+> there's no live session to redirect from in the first place, it's a payment link,
+> not A or B.
 
 ---
 
@@ -111,6 +118,7 @@ Use the answers to generate code with the correct SDK and idioms.
 | Mollie-hosted checkout | Mollie handles card UI | `<references/payments/hosted-checkout.md>` |
 | Build your own — embed card fields | Mollie Components (Mollie.js) | `<references/payments/components.md>` |
 | Build your own — other methods only | Methods API + Payments API | `<references/payments/build-your-own-checkout.md>` |
+| Payment link — no embedded checkout, share a URL | Mollie handles card UI | `<references/payments/payment-links.md>` |
 
 All integrations require webhook handling — always include it: `<references/payments/webhooks.md>`
 
