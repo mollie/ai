@@ -14,7 +14,7 @@
         "ref": "main"
       },
       "description": "Mollie payment integration — MCP server access and integration skills for Codex",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Mollie",
         "email": "info@mollie.com",
