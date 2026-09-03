@@ -14,7 +14,9 @@ description: >
   Bancontact, building a checkout, custom checkout, payment methods, Mollie Connect,
   OAuth onboarding, submerchants, application fees, mandates, customers API,
   subscriptions, recurring charges, refunds, captures, chargebacks, settlements,
-  reconciliation, payment stuck or pending, webhook not received, 401/403 errors.
+  reconciliation, payment stuck or pending, webhook not received, 401/403 errors,
+  sales invoices, revenue collection, B2B invoicing, invoicing customers, payment
+  terms, VAT invoice.
 ---
 
 # Mollie Payments
@@ -39,6 +41,10 @@ marketplace clients"). The steps here cover the common single-dimension case.
   or exposing Mollie as LLM tools) → this is the `mollie-agent-toolkit` skill.
 - **Refunding, capturing, or investigating existing payments/chargebacks/settlements**
   → `<references/operations/>`.
+- **Invoicing a customer to be paid later** (B2B billing, payment terms, VAT line
+  items — not a real-time checkout) → this is Sales Invoices (Revenue Collection),
+  a distinct product from the Payments API. Go straight to
+  `<references/payments/sales-invoices.md>` — skip Steps 2–6 below, they don't apply.
 - **New integration** → continue to Step 2.
 
 ---
@@ -87,9 +93,10 @@ applies (`<references/payments/webhooks.md>`), but skip Step 4 below.
 > design and branding.
 >
 > **C) Payment link** — No embedded checkout at all. You share a URL with the
-> customer (email, SMS, chat, invoice, QR code) instead of redirecting from a live
-> session. Use this when there's no checkout page to redirect from — invoicing,
-> phone/mail orders, donations, social selling.
+> customer (email, SMS, chat, QR code) instead of redirecting from a live session.
+> Use this when there's no checkout page to redirect from — phone/mail orders,
+> donations, social selling. (A formal invoice with payment terms/VAT lines is a
+> different product — see Step 1's Sales Invoices branch.)
 >
 > Not sure? Hosted checkout takes ~30 minutes and handles everything for you. A
 > custom checkout takes longer but keeps customers on your page throughout. If
