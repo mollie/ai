@@ -29,8 +29,8 @@ const paymentLink = await mollie.paymentLinks.create({
   allowedMethods: ['ideal', 'creditcard'], // optional — omit to allow all enabled methods
 });
 
-// Share paymentLink._links.self.href (or the shorter checkout URL Mollie returns)
-// with the customer via email, SMS, chat, etc.
+// Share paymentLink._links.paymentLink.href with the customer via email, SMS, chat, etc.
+// (_links.self is the API resource URL, not the checkout page — don't send that one)
 ```
 
 `profileId` is required instead of an implicit profile when authenticating with an
