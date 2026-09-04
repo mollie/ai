@@ -36,34 +36,36 @@ export const paymentLinkTools = (client: Client): MollieTool[] => [
     description:
       "Create a payment link — a shareable URL the customer can use to pay, instead of an embedded checkout. Unlike a payment, a payment link has no status of its own; each payment made against it does. Set reusable to true to let multiple customers pay via the same link.",
     parameters: z.object({
-      description: z
-        .string()
-        .describe("Description shown on the payment link's page and bank statement."),
-      amount: z
-        .object({
-          currency: z.string().length(3).describe("ISO 4217 currency code, e.g. EUR."),
-          value: z.string().describe('Exact decimal amount as a string, e.g. "10.00".'),
-        })
-        .optional()
-        .describe("Omit to let the customer enter their own amount (e.g. for donations)."),
-      redirectUrl: z
-        .string()
-        .url()
-        .optional()
-        .describe("URL the customer is redirected to after paying."),
-      webhookUrl: z
-        .string()
-        .url()
-        .optional()
-        .describe("URL Mollie calls to deliver status updates for payments made via this link."),
-      reusable: z
-        .boolean()
-        .optional()
-        .describe("Allow multiple customers to pay via the same link. Defaults to false (single use)."),
-      expiresAt: z
-        .string()
-        .optional()
-        .describe("ISO 8601 datetime the link expires at. Omit for a link that never expires."),
+      requestBody: z.object({
+        description: z
+          .string()
+          .describe("Description shown on the payment link's page and bank statement."),
+        amount: z
+          .object({
+            currency: z.string().length(3).describe("ISO 4217 currency code, e.g. EUR."),
+            value: z.string().describe('Exact decimal amount as a string, e.g. "10.00".'),
+          })
+          .optional()
+          .describe("Omit to let the customer enter their own amount (e.g. for donations)."),
+        redirectUrl: z
+          .string()
+          .url()
+          .optional()
+          .describe("URL the customer is redirected to after paying."),
+        webhookUrl: z
+          .string()
+          .url()
+          .optional()
+          .describe("URL Mollie calls to deliver status updates for payments made via this link."),
+        reusable: z
+          .boolean()
+          .optional()
+          .describe("Allow multiple customers to pay via the same link. Defaults to false (single use)."),
+        expiresAt: z
+          .string()
+          .optional()
+          .describe("ISO 8601 datetime the link expires at. Omit for a link that never expires."),
+      }),
     }),
     execute: async (params) => client.paymentLinks.create(params),
   },

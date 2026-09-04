@@ -150,12 +150,14 @@ describe("Payment link tools", () => {
     expect(mocks.paymentLinksGet).toHaveBeenCalledWith({ paymentLinkId: "pl_test" });
   });
 
-  it("create_payment_link calls paymentLinks.create with correct params", async () => {
+  it("create_payment_link calls paymentLinks.create with a requestBody wrapper", async () => {
     const tool = toolkit.getTools().find((t) => t.name === "create_payment_link")!;
     const params = {
-      description: "Invoice #4567",
-      amount: { currency: "EUR", value: "99.00" },
-      reusable: false,
+      requestBody: {
+        description: "Invoice #4567",
+        amount: { currency: "EUR", value: "99.00" },
+        reusable: false,
+      },
     };
     await tool.execute(params);
     expect(mocks.paymentLinksCreate).toHaveBeenCalledWith(params);
