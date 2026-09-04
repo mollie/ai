@@ -236,8 +236,8 @@ const toolkit = new MollieAgentToolkit({
 | `update_payment_link` | Write | Update a payment link's description, redirect/webhook URL, expiry, or reusability |
 
 Read tools are safe to expose broadly. Treat every Write tool as privileged,
-and the money-moving tools (`create_payment`, `create_refund`) as requiring
-explicit authorization before the agent can call them.
+and the money-moving tools (`create_payment`, `create_refund`, `create_payment_link`) as
+requiring explicit authorization before the agent can call them.
 
 ## Error handling
 
