@@ -16,7 +16,7 @@ selection) directly in your UI. Customers never leave your page for method selec
 ## Step 1 — Fetch active payment methods
 
 ```javascript
-// @mollie/api-client
+// mollie-api-typescript
 const methods = await mollie.methods.list({
   amount: { value: '99.00', currency: 'EUR' },
   // include issuers for methods that need them (ideal, kbc, giftcard)
@@ -32,13 +32,15 @@ Filtering by `amount` and `currency` ensures only methods valid for that transac
 
 ```javascript
 const payment = await mollie.payments.create({
-  method: 'ideal',           // the method the customer selected
-  issuer: 'ideal_INGBNL2A', // for iDEAL / KBC / gift cards — from the issuers list
-  amount: { currency: 'EUR', value: '99.00' },
-  description: 'Order #1234',
-  redirectUrl: 'https://example.com/orders/1234/complete',
-  webhookUrl: 'https://example.com/webhooks/mollie',
-  metadata: { orderId: '1234' },
+  paymentRequest: {
+    method: 'ideal',           // the method the customer selected
+    issuer: 'ideal_INGBNL2A', // for iDEAL / KBC / gift cards — from the issuers list
+    amount: { currency: 'EUR', value: '99.00' },
+    description: 'Order #1234',
+    redirectUrl: 'https://example.com/orders/1234/complete',
+    webhookUrl: 'https://example.com/webhooks/mollie',
+    metadata: { orderId: '1234' },
+  },
 });
 
 // Redirect the customer to complete authentication (bank, 3DS, etc.)
@@ -65,11 +67,13 @@ No redirect needed — display the IBAN and reference number in your UI.
 
 ```javascript
 const payment = await mollie.payments.create({
-  method: 'banktransfer',
-  amount: { currency: 'EUR', value: '99.00' },
-  description: 'Order #1234',
-  redirectUrl: 'https://example.com/orders/1234/complete',
-  webhookUrl: 'https://example.com/webhooks/mollie',
+  paymentRequest: {
+    method: 'banktransfer',
+    amount: { currency: 'EUR', value: '99.00' },
+    description: 'Order #1234',
+    redirectUrl: 'https://example.com/orders/1234/complete',
+    webhookUrl: 'https://example.com/webhooks/mollie',
+  },
 });
 
 // Display to customer — no redirect required

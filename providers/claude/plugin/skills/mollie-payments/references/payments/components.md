@@ -151,18 +151,20 @@ document.querySelector('#checkout-form').addEventListener('submit', async (e) =>
 ## 5. Backend: create the payment
 
 ```javascript
-// Node.js — @mollie/api-client
-import { createMollieClient } from '@mollie/api-client';
+// Node.js — mollie-api-typescript
+import { Client } from 'mollie-api-typescript';
 
-const mollie = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY });
+const mollie = new Client({ security: { apiKey: process.env.MOLLIE_API_KEY } });
 
 const payment = await mollie.payments.create({
-  method: 'creditcard',
-  amount: { currency: 'EUR', value: '29.99' },
-  description: 'Order #1234',
-  redirectUrl: 'https://example.com/order/1234/complete',
-  webhookUrl: 'https://example.com/webhooks/mollie',
-  cardToken: req.body.cardToken,   // ← from the frontend
+  paymentRequest: {
+    method: 'creditcard',
+    amount: { currency: 'EUR', value: '29.99' },
+    description: 'Order #1234',
+    redirectUrl: 'https://example.com/order/1234/complete',
+    webhookUrl: 'https://example.com/webhooks/mollie',
+    cardToken: req.body.cardToken,   // ← from the frontend
+  },
 });
 
 // Redirect the customer — use 303 See Other (GET redirect), never 302/POST

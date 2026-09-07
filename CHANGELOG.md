@@ -2,6 +2,26 @@
 
 ## [1.4.0]
 
+
+### Payment links and sales invoices (Revenue Collection)
+
+- Added `mollie-payments/references/payments/payment-links.md` — payment links
+  were already a frontmatter keyword with no reference or routing behind them.
+  Covers reusable vs. single-use links, `expiresAt`/`allowedMethods`, Connect
+  `applicationFee`, and the status-tracking trap (a link has no status of its
+  own — each resulting payment does).
+- Added `mollie-payments/references/payments/sales-invoices.md` — routes
+  developers to the Sales Invoices API (Revenue Collection), which
+  `@mollie/agent-toolkit` already supports but the skill's decision tree never
+  surfaced. Explicitly disambiguates from Mollie's own, unrelated Invoices API
+  (which bills the merchant for fees).
+- `SKILL.md` and `references/product-selection/routing-guide.md` updated to
+  route both cases: payment link as a third Step 4 checkout option, sales
+  invoices short-circuiting straight out of Step 1 since it isn't a
+  Payments-API checkout flow.
+- Added activation evals `mollie-payments-payment-link-activation` and
+  `mollie-payments-sales-invoice-activation`.
+
 ### Payment links added to @mollie/agent-toolkit
 
 - `@mollie/agent-toolkit` gains `list_payment_links`, `get_payment_link`,

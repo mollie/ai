@@ -13,15 +13,17 @@ The simplest integration: Mollie hosts the entire payment page. No frontend JS r
 ## Create a payment
 
 ```javascript
-// Node.js — @mollie/api-client
+// Node.js — mollie-api-typescript
 const payment = await mollie.payments.create({
-  amount: { currency: 'EUR', value: '99.00' },
-  description: 'Order #4567',
-  redirectUrl: `https://example.com/orders/4567/complete`,
-  webhookUrl: 'https://example.com/webhooks/mollie',
-  metadata: { orderId: '4567' },  // passed back in webhook and GET
-  // Omitting 'method' shows all available payment methods on the checkout page
-  // Set method: 'ideal' | 'creditcard' | 'bancontact' | etc. to pre-select
+  paymentRequest: {
+    amount: { currency: 'EUR', value: '99.00' },
+    description: 'Order #4567',
+    redirectUrl: `https://example.com/orders/4567/complete`,
+    webhookUrl: 'https://example.com/webhooks/mollie',
+    metadata: { orderId: '4567' },  // passed back in webhook and GET
+    // Omitting 'method' shows all available payment methods on the checkout page
+    // Set method: 'ideal' | 'creditcard' | 'bancontact' | etc. to pre-select
+  },
 });
 
 res.redirect(303, payment._links.checkout.href);
@@ -34,7 +36,7 @@ app.get('/orders/:id/complete', async (req, res) => {
   // The redirect URL is NOT guaranteed to arrive after the webhook.
   // Fetch status from the API — do not use query params from the redirect.
   const order = await db.orders.findById(req.params.id);
-  const payment = await mollie.payments.get(order.molliePaymentId);
+  const payment = await mollie.payments.get({ paymentId: order.molliePaymentId });
 
   if (payment.status === 'paid') {
     res.render('order-complete', { order });

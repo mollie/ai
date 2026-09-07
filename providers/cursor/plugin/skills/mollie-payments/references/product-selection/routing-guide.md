@@ -33,10 +33,17 @@ router's quick table, or when a request touches more than one dimension at once
 - **Recurring / subscription / "charge them again next month"** → `<references/recurring/>`
 - **One-time** → continue to Dimension 4.
 
-## Dimension 4 — Hosted or custom checkout?
+## Dimension 4 — Hosted checkout, custom checkout, or a payment link?
 
-Already covered in the main router's Step 2 — see `<references/payments/hosted-checkout.md>`
+Already covered in the main router's Step 4 — see `<references/payments/hosted-checkout.md>`
 or `<references/payments/components.md>` / `<references/payments/build-your-own-checkout.md>`.
+
+If there's no live checkout session to redirect from at all — the request is about
+sharing a link rather than embedding a checkout (phone/mail orders, donations,
+a quick invoice-by-link) — that's a **payment link**, not A or B. Route to
+`<references/payments/payment-links.md>`. If instead the request is about a formal
+invoice document with payment terms and VAT line items, see the Invoicing callout
+below — that's a different product (Sales Invoices), not a payment link.
 
 ## Dimension 5 — Is this a build task or an account operation?
 
@@ -57,3 +64,15 @@ above. In-person payment flows differ enough (device pairing, terminal-initiated
 transactions) that hosted-checkout/Components guidance doesn't transfer directly;
 confirm the exact terminal integration path against current Mollie docs before
 generating code, since none of the references in this skill cover it yet.
+
+## Invoicing vs. real-time checkout
+
+If the request is about sending a customer a formal invoice — payment terms
+("net 30"), VAT line items, a PDF invoice document, B2B billing — this bypasses
+Dimensions 1–4 entirely. It's not a checkout flow at all: it's the **Sales
+Invoices API** (Revenue Collection), a distinct product from Payments. Route
+straight to `<references/payments/sales-invoices.md>`.
+
+Do not confuse this with Mollie's own (unrelated) Invoices API, which bills the
+merchant for Mollie's fees — there's nothing to integrate there, see the
+disambiguation table at the top of `sales-invoices.md`.

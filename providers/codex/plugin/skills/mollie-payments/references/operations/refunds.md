@@ -5,11 +5,13 @@ Before writing any refund code, read `<references/operations/write-action-safety
 ## Create a refund
 
 ```javascript
-// Node.js — @mollie/api-client
-const refund = await mollie.paymentRefunds.create({
+// Node.js — mollie-api-typescript
+const refund = await mollie.refunds.create({
   paymentId: 'tr_WDqYK6vllg',
-  amount: { currency: 'EUR', value: '15.00' },  // set to the original payment amount for a full refund
-  description: 'Order #4567 — item returned',   // shown to the customer, max 255 chars
+  refundRequest: {
+    amount: { currency: 'EUR', value: '15.00' },  // set to the original payment amount for a full refund
+    description: 'Order #4567 — item returned',   // shown to the customer, max 255 chars
+  },
 });
 ```
 
@@ -31,7 +33,7 @@ payment status: fetch the refund by ID, don't assume `refunded` immediately afte
 creation.
 
 ```javascript
-const refund = await mollie.paymentRefunds.get('re_4qqhO89gsT', { paymentId: 'tr_WDqYK6vllg' });
+const refund = await mollie.refunds.get({ paymentId: 'tr_WDqYK6vllg', refundId: 're_4qqhO89gsT' });
 ```
 
 ## Marketplace-only fields
