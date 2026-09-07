@@ -18,15 +18,17 @@ from — invoicing, phone/mail orders, donations, social selling.
 ## Create a payment link
 
 ```javascript
-// Node.js — @mollie/api-client
+// Node.js — mollie-api-typescript
 const paymentLink = await mollie.paymentLinks.create({
-  description: 'Invoice #4567',
-  amount: { currency: 'EUR', value: '99.00' }, // omit to let the customer enter an amount
-  redirectUrl: 'https://example.com/thank-you', // optional — shown after payment
-  webhookUrl: 'https://example.com/webhooks/mollie',
-  reusable: false, // true allows unlimited customers to pay via the same link
-  expiresAt: '2026-12-31T23:59:59+00:00', // optional — omit for a link that never expires
-  allowedMethods: ['ideal', 'creditcard'], // optional — omit to allow all enabled methods
+  requestBody: {
+    description: 'Invoice #4567',
+    amount: { currency: 'EUR', value: '99.00' }, // omit to let the customer enter an amount
+    redirectUrl: 'https://example.com/thank-you', // optional — shown after payment
+    webhookUrl: 'https://example.com/webhooks/mollie',
+    reusable: false, // true allows unlimited customers to pay via the same link
+    expiresAt: '2026-12-31T23:59:59+00:00', // optional — omit for a link that never expires
+    allowedMethods: ['ideal', 'creditcard'], // optional — omit to allow all enabled methods
+  },
 });
 
 // Share paymentLink._links.paymentLink.href with the customer via email, SMS, chat, etc.
@@ -44,7 +46,7 @@ Unlike a payment, a payment link doesn't move through `open` → `paid` → `exp
 - **Single-use link**: handle status the same way as any other payment — via
   webhook on that resulting payment, not on the link. See `<webhooks.md>`.
 - **Reusable link**: there is no single webhook for "the link." Poll
-  `paymentLinks.listPayments(paymentLinkId)` to see all payments made against it, or
+  `paymentLinks.listPayments({ paymentLinkId })` to see all payments made against it, or
   rely on the `webhookUrl` set on the link — Mollie fires it for every payment the
   link produces, so your handler still keys off the individual payment ID, not the
   link ID.
@@ -60,11 +62,13 @@ you can charge a fee via `applicationFee`:
 
 ```javascript
 const paymentLink = await mollie.paymentLinks.create({
-  description: 'Invoice #4567',
-  amount: { currency: 'EUR', value: '99.00' },
-  applicationFee: {
-    amount: { currency: 'EUR', value: '5.00' },
-    description: 'Platform fee',
+  requestBody: {
+    description: 'Invoice #4567',
+    amount: { currency: 'EUR', value: '99.00' },
+    applicationFee: {
+      amount: { currency: 'EUR', value: '5.00' },
+      description: 'Platform fee',
+    },
   },
 });
 ```

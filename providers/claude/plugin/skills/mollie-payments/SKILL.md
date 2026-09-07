@@ -137,10 +137,13 @@ Always use the official Mollie SDK for the developer's language:
 
 | Language | Package |
 |---|---|
-| JavaScript / Node.js | `@mollie/api-client` |
-| TypeScript | `mollie-api-typescript` |
+| JavaScript / TypeScript / Node.js | `mollie-api-typescript` |
 | PHP | `mollie/mollie-api-php` (Composer) |
-| Python | `mollie-api-python` |
+| Python | `mollie-api-py` |
+
+`@mollie/api-client` (Node) and `mollie-api-python` are the old/community SDKs —
+don't use them for new integrations. If a developer already has one installed,
+that's a migration case for the `mollie-upgrade` skill, not a new build.
 
 Always use the v2 API. Never construct raw API calls when an SDK is available.
 

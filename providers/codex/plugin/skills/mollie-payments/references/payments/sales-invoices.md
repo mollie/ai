@@ -41,30 +41,32 @@ invoice should go out immediately.
 ## Create a sales invoice
 
 ```javascript
-// Node.js — @mollie/api-client
+// Node.js — mollie-api-typescript
 const invoice = await mollie.salesInvoices.create({
-  status: 'draft', // 'draft' saves only; 'issued' sends it; 'paid' records payment immediately
-  recipientIdentifier: 'customer-4567', // your own internal identifier for this recipient
-  recipient: {
-    type: 'business',
-    organizationName: 'Acme B.V.',
-    email: 'billing@acme.example',
-    streetAndNumber: 'Keizersgracht 1',
-    postalCode: '1015 CJ',
-    city: 'Amsterdam',
-    country: 'NL',
-  },
-  lines: [
-    {
-      description: 'Consulting services — March',
-      quantity: 1,
-      vatRate: '21.00',
-      unitPrice: { currency: 'EUR', value: '1500.00' },
+  salesInvoiceRequest: {
+    status: 'draft', // 'draft' saves only; 'issued' sends it; 'paid' records payment immediately
+    recipientIdentifier: 'customer-4567', // your own internal identifier for this recipient
+    recipient: {
+      type: 'business',
+      organizationName: 'Acme B.V.',
+      email: 'billing@acme.example',
+      streetAndNumber: 'Keizersgracht 1',
+      postalCode: '1015 CJ',
+      city: 'Amsterdam',
+      country: 'NL',
     },
-  ],
-  paymentTerm: '30 days', // options: 7/14/30/45/60/90/120 days
-  memo: 'Thank you for your business.',
-  vatScheme: 'standard', // or 'one-stop-shop' for OSS-eligible cross-border sales
+    lines: [
+      {
+        description: 'Consulting services — March',
+        quantity: 1,
+        vatRate: '21.00',
+        unitPrice: { currency: 'EUR', value: '1500.00' },
+      },
+    ],
+    paymentTerm: '30 days', // options: 7/14/30/45/60/90/120 days
+    memo: 'Thank you for your business.',
+    vatScheme: 'standard', // or 'one-stop-shop' for OSS-eligible cross-border sales
+  },
 });
 ```
 
@@ -77,5 +79,5 @@ const invoice = await mollie.salesInvoices.create({
 
 ```javascript
 const invoices = await mollie.salesInvoices.list({ limit: 50 });
-const invoice = await mollie.salesInvoices.get('invoice_4Y0eZitmBnQ6IDoMqZQKh');
+const invoice = await mollie.salesInvoices.get({ salesInvoiceId: 'invoice_4Y0eZitmBnQ6IDoMqZQKh' });
 ```
