@@ -2,6 +2,7 @@
 
 ## [1.4.0]
 
+
 ### Payment links and sales invoices (Revenue Collection)
 
 - Added `mollie-payments/references/payments/payment-links.md` — payment links
@@ -20,6 +21,17 @@
   Payments-API checkout flow.
 - Added activation evals `mollie-payments-payment-link-activation` and
   `mollie-payments-sales-invoice-activation`.
+
+### Payment links added to @mollie/agent-toolkit
+
+- `@mollie/agent-toolkit` gains `list_payment_links`, `get_payment_link`,
+  `create_payment_link`, `update_payment_link`, and `list_payment_link_payments`
+  (bumped to `0.4.0`) — the underlying SDK and the hosted MCP server already
+  supported payment links, but custom agents built directly on the toolkit
+  (LangChain/OpenAI Agents SDK/Vercel AI SDK) had no equivalent.
+- `mollie-agent-toolkit/SKILL.md`'s tool table and human-confirmation guidance
+  updated to include the new tools — `create_payment_link` is treated as a
+  write tool requiring confirmation, same tier as `create_payment`.
 - Bumped plugin version to `1.4.0` (additive, non-breaking).
 
 ## [1.3.0]
