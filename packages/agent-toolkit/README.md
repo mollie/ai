@@ -225,9 +225,19 @@ const toolkit = new MollieAgentToolkit({
 | `create_sales_invoice` | Write | Create a draft, issued, or paid sales invoice |
 | `update_sales_invoice` | Write | Update status, lines, recipient, or other invoice fields |
 
+### Payment links
+
+| Tool | Type | Description |
+|---|---|---|
+| `list_payment_links` | Read | List payment links |
+| `get_payment_link` | Read | Get a payment link by ID |
+| `list_payment_link_payments` | Read | List the payments made against a payment link — a link has no status of its own, so check this to see how a (reusable) link performed |
+| `create_payment_link` | **Write** | Create a shareable payment link |
+| `update_payment_link` | Write | Update a payment link's description, redirect/webhook URL, expiry, or reusability |
+
 Read tools are safe to expose broadly. Treat every Write tool as privileged,
-and the money-moving tools (`create_payment`, `create_refund`) as requiring
-explicit authorization before the agent can call them.
+and the money-moving tools (`create_payment`, `create_refund`, `create_payment_link`) as
+requiring explicit authorization before the agent can call them.
 
 ## Error handling
 

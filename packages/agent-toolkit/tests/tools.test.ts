@@ -10,6 +10,11 @@ const mocks = vi.hoisted(() => ({
   salesInvoicesGet: vi.fn().mockResolvedValue({ id: "invoice_test", status: "draft" }),
   salesInvoicesCreate: vi.fn().mockResolvedValue({ id: "invoice_test", status: "draft" }),
   salesInvoicesUpdate: vi.fn().mockResolvedValue({ id: "invoice_test", status: "issued" }),
+  paymentLinksList: vi.fn().mockResolvedValue({ data: [] }),
+  paymentLinksGet: vi.fn().mockResolvedValue({ id: "pl_test" }),
+  paymentLinksCreate: vi.fn().mockResolvedValue({ id: "pl_test" }),
+  paymentLinksUpdate: vi.fn().mockResolvedValue({ id: "pl_test" }),
+  paymentLinksListPayments: vi.fn().mockResolvedValue({ data: [] }),
 }));
 
 vi.mock("mollie-api-typescript", () => {
@@ -26,6 +31,13 @@ vi.mock("mollie-api-typescript", () => {
       get: mocks.salesInvoicesGet,
       create: mocks.salesInvoicesCreate,
       update: mocks.salesInvoicesUpdate,
+    },
+    paymentLinks: {
+      list: mocks.paymentLinksList,
+      get: mocks.paymentLinksGet,
+      create: mocks.paymentLinksCreate,
+      update: mocks.paymentLinksUpdate,
+      listPayments: mocks.paymentLinksListPayments,
     },
   };
   class Client { constructor() { Object.assign(this, mockClient); } }
@@ -115,5 +127,54 @@ describe("Sales invoice tools", () => {
       salesInvoiceId: "invoice_test",
       requestBody: { status: "issued" },
     });
+  });
+});
+
+describe("Payment link tools", () => {
+  let toolkit: MollieAgentToolkit;
+
+  beforeEach(() => {
+    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    vi.clearAllMocks();
+  });
+
+  it("list_payment_links calls paymentLinks.list with correct params", async () => {
+    const tool = toolkit.getTools().find((t) => t.name === "list_payment_links")!;
+    await tool.execute({ limit: 10 });
+    expect(mocks.paymentLinksList).toHaveBeenCalledWith({ limit: 10 });
+  });
+
+  it("get_payment_link calls paymentLinks.get with paymentLinkId", async () => {
+    const tool = toolkit.getTools().find((t) => t.name === "get_payment_link")!;
+    await tool.execute({ paymentLinkId: "pl_test" });
+    expect(mocks.paymentLinksGet).toHaveBeenCalledWith({ paymentLinkId: "pl_test" });
+  });
+
+  it("create_payment_link calls paymentLinks.create with a requestBody wrapper", async () => {
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment_link")!;
+    const params = {
+      requestBody: {
+        description: "Invoice #4567",
+        amount: { currency: "EUR", value: "99.00" },
+        reusable: false,
+      },
+    };
+    await tool.execute(params);
+    expect(mocks.paymentLinksCreate).toHaveBeenCalledWith(params);
+  });
+
+  it("update_payment_link calls paymentLinks.update with paymentLinkId and body", async () => {
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+    await tool.execute({ paymentLinkId: "pl_test", requestBody: { description: "Updated" } });
+    expect(mocks.paymentLinksUpdate).toHaveBeenCalledWith({
+      paymentLinkId: "pl_test",
+      requestBody: { description: "Updated" },
+    });
+  });
+
+  it("list_payment_link_payments calls paymentLinks.listPayments with paymentLinkId", async () => {
+    const tool = toolkit.getTools().find((t) => t.name === "list_payment_link_payments")!;
+    await tool.execute({ paymentLinkId: "pl_test", limit: 10 });
+    expect(mocks.paymentLinksListPayments).toHaveBeenCalledWith({ paymentLinkId: "pl_test", limit: 10 });
   });
 });

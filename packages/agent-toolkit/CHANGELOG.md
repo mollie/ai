@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+
+- `list_payment_links`, `get_payment_link`, `create_payment_link`, `update_payment_link`, `list_payment_link_payments`
+- 5 new tests for payment link tools (26 total)
+
 ## 0.3.1
 
 ### Changed
