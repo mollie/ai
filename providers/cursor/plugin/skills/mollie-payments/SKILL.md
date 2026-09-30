@@ -4,19 +4,13 @@ description: >
   Activate this skill when a developer is working with Mollie: integrating payments,
   setting up Mollie Connect for a platform/marketplace, building recurring payments or
   subscriptions, issuing refunds or captures, investigating chargebacks or settlements,
-  or troubleshooting a Mollie integration. This includes: accepting credit card payments,
-  embedding Mollie Components (card fields), setting up a checkout flow, handling payment
-  redirects, verifying webhooks, handling payment status updates, integrating Mollie in
-  Next.js / React / Vue / vanilla JS, setting up Mollie in a backend (Node.js, PHP,
-  Python), creating payments via the API, using the Mollie SDK, handling card
-  tokenisation, 3D Secure, Mollie.js, mollie-api-node, PCI compliance, card form, hosted
-  checkout, payment links, iDEAL, credit card, SEPA, Klarna, Apple Pay, Google Pay,
-  Bancontact, building a checkout, custom checkout, payment methods, Mollie Connect,
-  OAuth onboarding, submerchants, application fees, mandates, customers API,
-  subscriptions, recurring charges, refunds, captures, chargebacks, settlements,
-  reconciliation, payment stuck or pending, webhook not received, 401/403 errors,
-  sales invoices, revenue collection, B2B invoicing, invoicing customers, payment
-  terms, VAT invoice.
+  or troubleshooting a Mollie integration. This includes: hosted checkout, custom
+  checkout, Mollie Components (card fields), payment links, webhooks and payment
+  status handling, Next.js / React / Vue / Node.js / PHP / Python integrations, 3D
+  Secure, PCI compliance, payment methods (iDEAL, credit card, SEPA, Klarna, Apple
+  Pay, Google Pay, Bancontact), OAuth onboarding, submerchants, application fees,
+  customers and mandates, subscriptions, reconciliation, sales invoices and B2B
+  invoicing, stuck or pending payments, missing webhooks, and 401/403 errors.
 ---
 
 # Mollie Payments
