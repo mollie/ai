@@ -1,6 +1,6 @@
 {
   "name": "mollie",
-  "description": "Mollie payment integration — connects Claude to your Mollie account via the Mollie MCP server and activates skills for payments, Mollie Connect, recurring payments, refunds/operations, troubleshooting, SDK upgrades, and building Mollie-powered AI agents.",
+  "description": "Mollie payment integration \u2014 connects Claude to your Mollie account via the Mollie MCP server and activates skills for payments, Mollie Connect, recurring payments, refunds/operations, troubleshooting, SDK upgrades, and building Mollie-powered AI agents.",
   "version": "1.4.0",
   "author": {
     "name": "Mollie",
@@ -8,5 +8,7 @@
   },
   "homepage": "https://docs.mollie.com",
   "repository": "https://github.com/mollie/ai",
-  "license": "MIT"
+  "license": "MIT",
+  "icon": "./icon.png",
+  "privacyPolicyUrl": "https://www.mollie.com/privacy"
 }

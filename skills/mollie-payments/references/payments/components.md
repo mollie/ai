@@ -154,7 +154,8 @@ document.querySelector('#checkout-form').addEventListener('submit', async (e) =>
 // Node.js — mollie-api-typescript
 import { Client } from 'mollie-api-typescript';
 
-const mollie = new Client({ security: { apiKey: process.env.MOLLIE_API_KEY } });
+// mollieApiKey: load from your secret manager / deployment config
+const mollie = new Client({ security: { apiKey: mollieApiKey } });
 
 const payment = await mollie.payments.create({
   paymentRequest: {
