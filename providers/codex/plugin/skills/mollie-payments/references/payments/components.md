@@ -150,7 +150,7 @@ document.querySelector('#checkout-form').addEventListener('submit', async (e) =>
 
 ## 5. Backend: create the payment
 
-```javascript
+```typescript
 // Node.js — mollie-api-typescript
 import { Client } from 'mollie-api-typescript';
 
