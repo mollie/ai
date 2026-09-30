@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "mollie": {
-      "type": "http",
-      "url": "https://mcp.mollie.com/mcp"
-    }
-  }
-}
