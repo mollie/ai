@@ -37,7 +37,7 @@
     "composerIcon": "./assets/icon.png",
     "websiteURL": "https://www.mollie.com",
     "supportURL": "https://help.mollie.com",
-    "privacyPolicyURL": "https://www.mollie.com/privacy",
-    "termsOfServiceURL": "https://www.mollie.com/terms"
+    "privacyPolicyURL": "https://www.mollie.com/legal/privacy",
+    "termsOfServiceURL": "https://www.mollie.com/legal/user-agreement"
   }
 }

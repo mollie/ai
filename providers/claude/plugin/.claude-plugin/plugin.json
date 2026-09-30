@@ -10,5 +10,5 @@
   "repository": "https://github.com/mollie/ai",
   "license": "MIT",
   "icon": "./.claude-plugin/icon.png",
-  "privacyPolicyUrl": "https://www.mollie.com/privacy"
+  "privacyPolicyUrl": "https://www.mollie.com/legal/privacy"
 }
