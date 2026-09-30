@@ -61,7 +61,7 @@ gemini extensions install github:mollie/ai
 
 ## Repository layout
 
-Skills are authored once in [`skills/`](skills/). Each tool's actual plugin — manifest, MCP config, and a copy of the skills — lives under `providers/<tool>/plugin/` (e.g. [`providers/claude/plugin`](providers/claude/plugin/)). The root `.claude-plugin/`, `.codex-plugin/`, and `.cursor-plugin/` folders only hold a `marketplace.json` pointer into the matching `providers/` directory.
+Skills are authored once in [`skills/`](skills/). Each tool's actual plugin — manifest, MCP config, and a copy of the skills — lives under `providers/<tool>/plugin/` (e.g. [`providers/claude/plugin`](providers/claude/plugin/)). The root `.claude-plugin/`, `.cursor-plugin/`, and `.agents/plugins/` (Codex) folders only hold a `marketplace.json` pointer into the matching `providers/` directory. The Codex plugin follows the portable [Agent Plugins](https://agent-plugins.org) layout (`plugin.json` + `mcp.json` at its root).
 
 After editing `skills/` or a provider's `plugin.json`, run:
 
