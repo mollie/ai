@@ -150,11 +150,14 @@ document.querySelector('#checkout-form').addEventListener('submit', async (e) =>
 
 ## 5. Backend: create the payment
 
-```javascript
+```typescript
 // Node.js — mollie-api-typescript
 import { Client } from 'mollie-api-typescript';
 
-const mollie = new Client({ security: { apiKey: process.env.MOLLIE_API_KEY } });
+// Injected from your secret manager / deployment config
+declare const mollieApiKey: string;
+
+const mollie = new Client({ security: { apiKey: mollieApiKey } });
 
 const payment = await mollie.payments.create({
   paymentRequest: {

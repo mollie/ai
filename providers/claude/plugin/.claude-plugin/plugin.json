@@ -8,5 +8,7 @@
   },
   "homepage": "https://docs.mollie.com",
   "repository": "https://github.com/mollie/ai",
-  "license": "MIT"
+  "license": "MIT",
+  "icon": "./icon.png",
+  "privacyPolicyUrl": "https://www.mollie.com/privacy"
 }

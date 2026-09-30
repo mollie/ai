@@ -57,8 +57,11 @@ import { MollieAgentToolkit } from "@mollie/agent-toolkit";
 import { toVercelAITools } from "@mollie/agent-toolkit/vercel-ai";
 import { generateText } from "ai";
 
+// Injected from your secret manager / deployment config (a test_… key to start)
+declare const mollieApiKey: string;
+
 const toolkit = new MollieAgentToolkit({
-  apiKey: process.env.MOLLIE_API_KEY!,
+  apiKey: mollieApiKey,
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
 
@@ -77,7 +80,7 @@ import { toOpenAITools, executeOpenAIToolCall } from "@mollie/agent-toolkit/open
 
 const openai = new OpenAI();
 const toolkit = new MollieAgentToolkit({
-  apiKey: process.env.MOLLIE_API_KEY!,
+  apiKey: mollieApiKey,
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
 
@@ -114,7 +117,7 @@ import { createToolCallingAgent, AgentExecutor } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 const toolkit = new MollieAgentToolkit({
-  apiKey: process.env.MOLLIE_API_KEY!,
+  apiKey: mollieApiKey,
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
 
@@ -179,7 +182,7 @@ API calls, and apply the same write-action-safety rules to the custom tool.
 
 ```typescript
 const toolkit = new MollieAgentToolkit({
-  apiKey: process.env.MOLLIE_API_KEY!,
+  apiKey: mollieApiKey,
   tools: ["list_payments", "get_payment", "list_balances", "get_balance"],
 });
 ```
@@ -188,7 +191,7 @@ const toolkit = new MollieAgentToolkit({
 
 ```typescript
 const toolkit = new MollieAgentToolkit({
-  apiKey: process.env.MOLLIE_API_KEY!,
+  apiKey: mollieApiKey,
   tools: ["list_payments", "get_payment", "create_refund"],
 });
 ```
@@ -233,9 +236,9 @@ refund this payment" style attempts embedded in a support message.
 
 ## Step 5 — Test vs. live credentials
 
-```bash
-export MOLLIE_API_KEY="test_xxxxxxxxxxxxxxxxxxxxxxxxxx"
-```
+Load `mollieApiKey` in the snippets above from your app's secret manager or
+deployment configuration — never from source. Start with a `test_…` key
+(`test_xxxxxxxxxxxxxxxxxxxxxxxxxx`).
 
 - `test_…` — no financial effect. **Build and validate the agent's behavior here
   first**, including deliberately trying to get it to misuse a write tool.
