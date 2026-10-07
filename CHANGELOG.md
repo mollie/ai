@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0] (Codex)
+
+### Codex plugin now installable on ChatGPT web and mobile
+
+- The Codex plugin bundled its own MCP server config (`providers/codex/plugin/mcp.json`,
+  pointing at `https://mcp.mollie.com/mcp`). OpenAI's plugin directory marks any
+  plugin that bundles its own MCP config as `requires_local_executor: true`,
+  which restricts installation to ChatGPT desktop and Codex — ChatGPT web and
+  mobile can only reach MCP servers through a registered app.
+- `mcp.json` removed. Added `providers/codex/plugin/.app.json`, referencing our
+  registered ChatGPT app (`asdk_app_6a906843cab08191875b1054ea7b609a`) instead.
+- Manifest moved from `providers/codex/plugin/plugin.json` to
+  `providers/codex/plugin/.codex-plugin/plugin.json`, matching the reference
+  layout used by [Stripe's Codex plugin](https://github.com/stripe/ai). The
+  `interface` block moves from `extensions["com.openai"].interface` to the
+  manifest's top level; `extensions` and `$schema` are dropped. Added
+  `"skills": "./skills/"` and `"apps": "./.app.json"`.
+- Bumped Codex plugin version to `1.6.0` (Codex versions independently of the
+  Claude/Cursor/Gemini manifests).
+
 ## [1.4.0]
 
 
