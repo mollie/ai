@@ -61,7 +61,7 @@ gemini extensions install github:mollie/ai
 
 ## Repository layout
 
-Skills are authored once in [`skills/`](skills/). Each tool's actual plugin — manifest, MCP config, and a copy of the skills — lives under `providers/<tool>/plugin/` (e.g. [`providers/claude/plugin`](providers/claude/plugin/)). The root `.claude-plugin/`, `.cursor-plugin/`, and `.agents/plugins/` (Codex) folders only hold a `marketplace.json` pointer into the matching `providers/` directory. The Codex plugin follows the portable [Agent Plugins](https://agent-plugins.org) layout, with its manifest at `.codex-plugin/plugin.json` and an `.app.json` referencing our registered ChatGPT app instead of bundling its own MCP config — this is what makes the plugin installable on ChatGPT web and mobile, not just desktop.
+Skills are authored once in [`skills/`](skills/). Each tool's actual plugin — manifest, MCP config, and a copy of the skills — lives under `providers/<tool>/plugin/` (e.g. [`providers/claude/plugin`](providers/claude/plugin/)). The root `.claude-plugin/`, `.cursor-plugin/`, and `.agents/plugins/` (Codex) folders only hold a `marketplace.json` pointer into the matching `providers/` directory. The Codex plugin follows the portable [Agent Plugins](https://agent-plugins.org) layout, with its manifest at `.codex-plugin/plugin.json` and `mcp.json` declaring the Mollie MCP server directly — OpenAI's directory submission flow requires the MCP server to be declared this way ("With MCP") and rejects `apps`/`.app.json` app references outright.
 
 After editing `skills/` or a provider's `plugin.json`, run:
 

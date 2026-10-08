@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.6.1] (Codex)
+
+### Revert: OpenAI directory submission rejects app references
+
+- `1.6.0` replaced `providers/codex/plugin/mcp.json` with `.app.json`,
+  referencing our registered ChatGPT app, on the assumption that bundling an
+  MCP server config was what caused OpenAI's plugin directory to mark the
+  plugin `requires_local_executor: true`. Attempting to submit that build
+  through the OpenAI plugin directory portal failed immediately: "App
+  references detected: Plugins with `.app.json` cannot be submitted. Declare
+  an MCP server URL instead." Confirmed against OpenAI's own docs
+  (developers.openai.com/plugins/deploy/submission(-errors)): `apps`/`.app.json`
+  is for local/workspace installs, not public directory submission — "Directory
+  submissions must use **With MCP** and submit the MCP server directly."
+- Restored `providers/codex/plugin/mcp.json` (streamable-http,
+  `https://mcp.mollie.com/mcp`), referenced from the manifest via
+  `"mcpServers": "./mcp.json"`. Removed `.app.json`/`apps`.
+- Kept the manifest at `providers/codex/plugin/.codex-plugin/plugin.json` (the
+  Stripe-reference layout move is unrelated to the app-vs-MCP question).
+- Note: this restores the plugin to a submittable state, but the original
+  `requires_local_executor: true` flag may require completing OpenAI's
+  dashboard-side MCP server review/domain verification separately — that
+  can't be resolved from this repo alone.
+- Bumped Codex plugin version to `1.6.1`.
+
 ## [1.6.0] (Codex)
 
 ### Codex plugin now installable on ChatGPT web and mobile

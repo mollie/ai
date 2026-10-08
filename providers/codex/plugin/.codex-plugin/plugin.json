@@ -1,6 +1,6 @@
 {
   "name": "mollie",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Mollie payment integration — connects Codex to your Mollie account via the Mollie MCP server and activates skills for payments, Mollie Connect, recurring payments, refunds/operations, troubleshooting, SDK upgrades, and building Mollie-powered AI agents.",
   "author": {
     "name": "Mollie",
@@ -18,7 +18,7 @@
     "subscriptions"
   ],
   "skills": "./skills/",
-  "apps": "./.app.json",
+  "mcpServers": "./mcp.json",
   "interface": {
     "displayName": "Mollie",
     "shortDescription": "Build Mollie payment flows",
