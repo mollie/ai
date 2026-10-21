@@ -10,7 +10,8 @@ import { salesInvoiceTools } from "./tools/salesInvoices.js";
 import { paymentLinkTools } from "./tools/paymentLinks.js";
 import type { MollieTool, MollieAgentToolkitOptions, ToolName } from "./types.js";
 
-const ALL_TOOLS = new Set<ToolName>([
+/** Every tool the toolkit exposes. Pass this to `tools` only if you deliberately want all of them. There is no default. */
+export const ALL_TOOLS: readonly ToolName[] = [
   "list_payments",
   "get_payment",
   "create_payment",
@@ -35,15 +36,21 @@ const ALL_TOOLS = new Set<ToolName>([
   "create_payment_link",
   "update_payment_link",
   "list_payment_link_payments",
-]);
+];
 
 export class MollieAgentToolkit {
   private readonly tools: MollieTool[];
 
   constructor({ apiKey, tools }: MollieAgentToolkitOptions) {
+    if (!tools) {
+      throw new Error(
+        "MollieAgentToolkit requires an explicit `tools` allowlist. There is no default. Omitting `tools` used to silently enable every tool, including ones that move money (create_payment, create_refund, create_payment_link, ...). Pass the smallest set your agent needs, e.g. `tools: [\"list_payments\", \"get_payment\"]`, or `tools: ALL_TOOLS` if you deliberately want every tool.",
+      );
+    }
+
     const client = new Client({ security: { apiKey } });
 
-    const enabled = new Set<ToolName>(tools ?? ALL_TOOLS);
+    const enabled = new Set<ToolName>(tools);
 
     const all: MollieTool[] = [
       ...paymentTools(client),

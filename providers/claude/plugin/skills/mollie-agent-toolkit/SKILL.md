@@ -25,8 +25,9 @@ call them, anything that reaches the prompt — a customer's email, a payment
 description, any untrusted text — can influence what the agent does. Two rules
 follow, and they are not optional:
 
-1. **Default to read-only.** Always pass an explicit `tools` allowlist. Never omit
-   it — omitting `tools` exposes every tool, including the money-moving ones.
+1. **`tools` is required.** The constructor throws if you omit it — there is
+   no default. Always pass an explicit allowlist, and grant write tools only
+   when the agent genuinely needs them.
 2. **Confirm write operations.** Put a human-in-the-loop, or your own server-side
    authorization check, in front of anything that creates a payment or refund. Do
    not let a model trigger these unattended.
@@ -265,7 +266,7 @@ account identifiers at `info`/`debug` level.
 
 | Mistake | Fix |
 |---|---|
-| Omitting the `tools` option | Always pass an explicit allowlist — omitting it exposes every tool including money-moving ones |
+| Omitting the `tools` option | Not possible as of `@mollie/agent-toolkit` 0.5.0 — the constructor throws. Always pass an explicit allowlist (use `ALL_TOOLS` only if you deliberately want every tool) |
 | Treating "ask the user first" in the system prompt as sufficient | Enforce confirmation in code, outside model control |
 | Granting `create_subscription` without treating it as high-risk | It has ongoing financial effect — treat like a money-moving tool |
 | Assuming the toolkit covers captures/chargebacks | Not exposed as tools — wrap the direct API calls yourself if needed |
