@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { MollieAgentToolkit } from "../src/toolkit.js";
+import { MollieAgentToolkit, ALL_TOOLS } from "../src/toolkit.js";
 
 vi.mock("mollie-api-typescript", () => {
   const mockClient = {
@@ -19,8 +19,15 @@ vi.mock("mollie-api-typescript", () => {
 
 describe("MollieAgentToolkit", () => {
   describe("getTools()", () => {
-    it("returns all tools when no filter is specified", () => {
-      const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    it("throws when the tools option is omitted", () => {
+      expect(() => {
+        // @ts-expect-error tools is required at runtime, intentionally testing omission
+        new MollieAgentToolkit({ apiKey: "test_xxx" });
+      }).toThrow(/requires an explicit `tools` allowlist/);
+    });
+
+    it("returns every tool when ALL_TOOLS is passed explicitly", () => {
+      const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
       const names = toolkit.getTools().map((t) => t.name);
 
       expect(names).toContain("list_payments");
@@ -62,7 +69,7 @@ describe("MollieAgentToolkit", () => {
     });
 
     it("each tool has a name, description, parameters, and execute function", () => {
-      const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+      const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
       for (const tool of toolkit.getTools()) {
         expect(typeof tool.name).toBe("string");
         expect(typeof tool.description).toBe("string");

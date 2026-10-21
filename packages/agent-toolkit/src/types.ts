@@ -37,6 +37,10 @@ export type ToolName =
 
 export interface MollieAgentToolkitOptions {
   apiKey: string;
-  /** Restrict which tools are available. Defaults to all tools. */
-  tools?: ToolName[];
+  /**
+   * Explicit allowlist of tools the agent may call. Required: there is no
+   * default. Pass the smallest set your agent needs, or `ALL_TOOLS` from
+   * `@mollie/agent-toolkit` if you deliberately want every tool.
+   */
+  tools: readonly ToolName[];
 }

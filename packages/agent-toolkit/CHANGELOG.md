@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0
+
+### Breaking
+
+- `MollieAgentToolkitOptions.tools` is now required. The constructor throws a clear error if `tools` is omitted, instead of silently defaulting to every tool (including `create_payment`, `create_refund`, and other write tools).
+- Added `ALL_TOOLS` as a named export (`import { ALL_TOOLS } from "@mollie/agent-toolkit"`) for the rare case where an agent genuinely needs every tool — pass it explicitly as `tools: ALL_TOOLS`.
+
+### Migration
+
+- If you previously constructed `new MollieAgentToolkit({ apiKey })` without a `tools` option, pick the smallest explicit allowlist your agent needs, e.g. `tools: ["list_payments", "get_payment"]`, or pass `tools: ALL_TOOLS` to keep the old behavior.
+
 ## 0.4.0
 
 ### Added

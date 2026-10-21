@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MollieAgentToolkit } from "../src/toolkit.js";
+import { MollieAgentToolkit, ALL_TOOLS } from "../src/toolkit.js";
 
 const mocks = vi.hoisted(() => ({
   paymentsList: vi.fn().mockResolvedValue({ data: [{ id: "tr_test" }] }),
@@ -48,7 +48,7 @@ describe("Payment tools", () => {
   let toolkit: MollieAgentToolkit;
 
   beforeEach(() => {
-    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
     vi.clearAllMocks();
   });
 
@@ -79,7 +79,7 @@ describe("Payment tools", () => {
 
 describe("Settlement tools", () => {
   it("list_settlements calls settlements.list with correct params", async () => {
-    const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
     const tool = toolkit.getTools().find((t) => t.name === "list_settlements")!;
     await tool.execute({ limit: 5 });
     expect(mocks.settlementsList).toHaveBeenCalledWith({ limit: 5 });
@@ -90,7 +90,7 @@ describe("Sales invoice tools", () => {
   let toolkit: MollieAgentToolkit;
 
   beforeEach(() => {
-    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
     vi.clearAllMocks();
   });
 
@@ -134,7 +134,7 @@ describe("Payment link tools", () => {
   let toolkit: MollieAgentToolkit;
 
   beforeEach(() => {
-    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx" });
+    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
     vi.clearAllMocks();
   });
 

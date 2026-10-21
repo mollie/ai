@@ -15,8 +15,9 @@ operations. When an LLM can call them, anything that reaches the prompt –
 including untrusted input such as a payment description or a customer email –
 can influence what the agent does. Two rules follow:
 
-1. **Default to read-only.** Pass an explicit `tools` allowlist and grant write
-   tools only when the workflow needs them. Every example below does this.
+1. **`tools` is required.** The constructor throws if you omit it — there is
+   no default. Pass an explicit `tools` allowlist and grant write tools only
+   when the workflow needs them. Every example below does this.
 2. **Confirm write operations.** Put a human-in-the-loop (or your own
    server-side authorization) in front of any tool that creates a payment or
    refund. Do not let a model trigger these unattended.
@@ -144,9 +145,9 @@ console.log(result.output);
 
 ## Restricting available tools
 
-The `tools` option controls exactly which operations the agent can call. Pass
-the smallest set the task needs. Omitting it exposes every tool, including
-write operations – not what you want for most agents.
+The `tools` option controls exactly which operations the agent can call, and
+it is required – the constructor throws a clear error if you omit it. Pass
+the smallest set the task needs.
 
 ```typescript
 // Read-only reporting agent
@@ -163,6 +164,25 @@ const toolkit = new MollieAgentToolkit({
   tools: ["list_payments", "get_payment", "create_refund"],
 });
 ```
+
+If an agent genuinely needs every tool, opt in explicitly with the exported
+`ALL_TOOLS` constant instead of omitting the option:
+
+```typescript
+import { MollieAgentToolkit, ALL_TOOLS } from "@mollie/agent-toolkit";
+
+const toolkit = new MollieAgentToolkit({
+  apiKey: process.env.MOLLIE_API_KEY!,
+  tools: ALL_TOOLS,
+});
+```
+
+### Migrating from 0.4.x
+
+`tools` was previously optional and defaulted to every tool when omitted.
+As of 0.5.0 it is required; omitting it throws instead. Update any
+`new MollieAgentToolkit({ apiKey })` call to pass an explicit `tools` array,
+or `tools: ALL_TOOLS` to keep the previous behavior.
 
 ## Available tools
 
