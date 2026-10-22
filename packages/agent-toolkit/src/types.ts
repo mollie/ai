@@ -43,4 +43,16 @@ export interface MollieAgentToolkitOptions {
    * `@mollie/agent-toolkit` if you deliberately want every tool.
    */
   tools: readonly ToolName[];
+  /**
+   * Optional allowlist of domains that `redirectUrl` fields are permitted to
+   * point to. Checked by exact hostname match. When omitted, no restriction
+   * is applied (opt-in, backwards compatible).
+   */
+  allowedRedirectDomains?: readonly string[];
+  /**
+   * Optional allowlist of domains that `webhookUrl` fields are permitted to
+   * point to. Checked by exact hostname match. When omitted, no restriction
+   * is applied (opt-in, backwards compatible).
+   */
+  allowedWebhookDomains?: readonly string[];
 }

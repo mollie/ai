@@ -1,8 +1,12 @@
 import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
+import { assertAllowedUrl } from "../urlAllowlist.js";
 
-export const paymentTools = (client: Client): MollieTool[] => [
+export const paymentTools = (
+  client: Client,
+  options?: { allowedRedirectDomains?: readonly string[]; allowedWebhookDomains?: readonly string[] },
+): MollieTool[] => [
   {
     name: "list_payments",
     description:
@@ -60,6 +64,12 @@ export const paymentTools = (client: Client): MollieTool[] => [
           .describe("Arbitrary key-value metadata attached to the payment."),
       }),
     }),
-    execute: async (params) => client.payments.create(params),
+    execute: async (params) => {
+      assertAllowedUrl(params.paymentRequest.redirectUrl, options?.allowedRedirectDomains, "redirectUrl");
+      if (params.paymentRequest.webhookUrl) {
+        assertAllowedUrl(params.paymentRequest.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
+      }
+      return client.payments.create(params);
+    },
   },
 ];
