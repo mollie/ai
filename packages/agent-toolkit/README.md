@@ -53,6 +53,12 @@ Mollie credentials are environment-scoped:
 Start with `test_` credentials. Switch to `live_` only once you have confirmed
 the agent's behavior and have authorization controls around write tools.
 
+This toolkit runs inside your application and calls the Mollie API directly with
+the API key you provide. Mollie’s API applies its existing per-organization
+rate limits to covered requests; these limits are an API-layer backstop, not a
+toolkit-specific kill switch. This package has no hosted backend that can
+remotely disable tool execution in an integration.
+
 ## Quickstart (Vercel AI SDK)
 
 Read-only agent – safe to run first:
