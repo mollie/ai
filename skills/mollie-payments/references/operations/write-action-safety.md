@@ -25,7 +25,11 @@ Apply these rules whenever generating code for any operation in this folder.
   amount, and the resulting status — this is the audit trail when something needs
   investigating later. Redact or mask sensitive fields — card numbers, IBAN-adjacent
   routing details, customer identifiers — before writing request/response data to
-  logs; the audit trail does not need them unmasked to be useful.
+  logs; the audit trail does not need them unmasked to be useful. When using
+  `@mollie/agent-toolkit`, use its exported `redactSensitiveData` helper
+  (`packages/agent-toolkit/src/redact.ts`) as a drop-in control instead of
+  hand-rolling masking logic — see the toolkit's README "Logging and redaction"
+  section for usage.
 - **Test mode first.** Verify the full flow — including the failure path — with
   `test_xxx` credentials before pointing the same code at `live_xxx`.
 

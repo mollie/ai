@@ -259,8 +259,10 @@ this level of logging; every write tool does.
 Tool arguments and results can carry masked card data, IBAN-adjacent routing
 details, or customer identifiers — redact or mask sensitive fields before writing
 them to logs, the same as `<mollie-payments:references/operations/write-action-safety.md>`
-requires elsewhere. Audit logging is not a reason to log unmasked PII or financial
-account identifiers at `info`/`debug` level.
+requires elsewhere. Use `@mollie/agent-toolkit`'s exported `redactSensitiveData`
+helper for this instead of hand-rolling masking logic. Audit logging is not a
+reason to log unmasked PII or financial account identifiers at `info`/`debug`
+level.
 
 ## Common mistakes
 
