@@ -2,10 +2,11 @@ import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
 import { assertAllowedUrl } from "../urlAllowlist.js";
+import { assertConfirmed, type RequireConfirmation } from "../confirmation.js";
 
 export const subscriptionTools = (
   client: Client,
-  options?: { allowedWebhookDomains?: readonly string[] },
+  options?: { allowedWebhookDomains?: readonly string[]; requireConfirmation?: RequireConfirmation },
 ): MollieTool[] => [
   {
     name: "list_subscriptions",
@@ -55,6 +56,7 @@ export const subscriptionTools = (
           "webhookUrl",
         );
       }
+      await assertConfirmed(options?.requireConfirmation, { tool: "create_subscription", params });
       return client.subscriptions.create(params);
     },
   },

@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { RequireConfirmation } from "./confirmation.js";
 
 export interface MollieTool {
   name: string;
@@ -55,4 +56,13 @@ export interface MollieAgentToolkitOptions {
    * is applied (opt-in, backwards compatible).
    */
   allowedWebhookDomains?: readonly string[];
+  /**
+   * Optional hook invoked before a write tool (`create_payment`,
+   * `create_refund`, `create_subscription`, `create_payment_link`,
+   * `update_payment_link`) executes. Return `{ approved: false }` to block
+   * the call — the tool throws `MollieAgentToolkitConfirmationDeniedError`
+   * instead of reaching the Mollie API. When omitted, no confirmation gate
+   * is applied (opt-in, backwards compatible).
+   */
+  requireConfirmation?: RequireConfirmation;
 }

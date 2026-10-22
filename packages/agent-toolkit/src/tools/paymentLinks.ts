@@ -2,10 +2,15 @@ import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
 import { assertAllowedUrl } from "../urlAllowlist.js";
+import { assertConfirmed, type RequireConfirmation } from "../confirmation.js";
 
 export const paymentLinkTools = (
   client: Client,
-  options?: { allowedRedirectDomains?: readonly string[]; allowedWebhookDomains?: readonly string[] },
+  options?: {
+    allowedRedirectDomains?: readonly string[];
+    allowedWebhookDomains?: readonly string[];
+    requireConfirmation?: RequireConfirmation;
+  },
 ): MollieTool[] => [
   {
     name: "list_payment_links",
@@ -78,6 +83,7 @@ export const paymentLinkTools = (
       if (params.requestBody.webhookUrl) {
         assertAllowedUrl(params.requestBody.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
       }
+      await assertConfirmed(options?.requireConfirmation, { tool: "create_payment_link", params });
       return client.paymentLinks.create(params);
     },
   },
@@ -102,6 +108,7 @@ export const paymentLinkTools = (
       if (params.requestBody.webhookUrl) {
         assertAllowedUrl(params.requestBody.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
       }
+      await assertConfirmed(options?.requireConfirmation, { tool: "update_payment_link", params });
       return client.paymentLinks.update(params);
     },
   },

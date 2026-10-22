@@ -18,9 +18,32 @@ can influence what the agent does. Two rules follow:
 1. **`tools` is required.** The constructor throws if you omit it — there is
    no default. Pass an explicit `tools` allowlist and grant write tools only
    when the workflow needs them. Every example below does this.
-2. **Confirm write operations.** Put a human-in-the-loop (or your own
-   server-side authorization) in front of any tool that creates a payment or
-   refund. Do not let a model trigger these unattended.
+2. **Confirm write operations.** Pass a `requireConfirmation` callback to
+   gate every write tool (`create_payment`, `create_refund`,
+   `create_subscription`, `create_payment_link`, `update_payment_link`)
+   behind a human-in-the-loop (or your own server-side authorization) before
+   it reaches the Mollie API. Do not let a model trigger these unattended.
+
+`requireConfirmation` is optional. When you supply it, the toolkit calls it
+with the tool name and the raw params before executing the tool, and awaits
+its result; returning `{ approved: false }` makes the tool throw
+`MollieAgentToolkitConfirmationDeniedError` instead of calling the Mollie API.
+When omitted, no confirmation gate is applied (opt-in, backwards compatible).
+
+```typescript
+const toolkit = new MollieAgentToolkit({
+  apiKey: process.env.MOLLIE_API_KEY!,
+  tools: ["list_payments", "get_payment", "create_refund"],
+  requireConfirmation: async ({ tool, params }) => {
+    const approved = await askOperatorToApprove(tool, params); // your own UI/API
+    return { approved };
+  },
+});
+```
+
+For a fuller reference implementation — validating the requested amount
+against the real payment before asking, and auditing every decision — see
+`examples/langchain/index.ts`'s `confirmRefund`.
 
 ## Installation
 

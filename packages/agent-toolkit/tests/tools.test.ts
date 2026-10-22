@@ -337,3 +337,98 @@ describe("URL allowlist", () => {
     expect(mocks.subscriptionsCreate).not.toHaveBeenCalled();
   });
 });
+
+describe("Write-action confirmation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("create_refund proceeds and calls refunds.create when requireConfirmation approves", async () => {
+    const requireConfirmation = vi.fn().mockResolvedValue({ approved: true });
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_refund"],
+      requireConfirmation,
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_refund")!;
+    const params = {
+      paymentId: "tr_test",
+      refundRequest: { amount: { currency: "EUR", value: "5.00" } },
+    };
+
+    await tool.execute(params);
+
+    expect(requireConfirmation).toHaveBeenCalledWith({ tool: "create_refund", params });
+    expect(mocks.refundsCreate).toHaveBeenCalledWith(params);
+  });
+
+  it("create_refund rejects and does not call refunds.create when requireConfirmation denies", async () => {
+    const requireConfirmation = vi.fn().mockResolvedValue({ approved: false, reason: "declined by operator" });
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_refund"],
+      requireConfirmation,
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_refund")!;
+
+    await expect(tool.execute({ paymentId: "tr_test" })).rejects.toThrow(/declined by operator/);
+    expect(mocks.refundsCreate).not.toHaveBeenCalled();
+  });
+
+  it("create_refund executes without a confirmation gate when requireConfirmation is not supplied", async () => {
+    const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ["create_refund"] });
+    const tool = toolkit.getTools().find((t) => t.name === "create_refund")!;
+    const params = { paymentId: "tr_test" };
+
+    await tool.execute(params);
+
+    expect(mocks.refundsCreate).toHaveBeenCalledWith(params);
+  });
+
+  it.each([
+    [
+      "create_payment",
+      {
+        paymentRequest: {
+          amount: { currency: "EUR", value: "10.00" },
+          description: "test",
+          redirectUrl: "https://example.com/callback",
+        },
+      },
+      () => mocks.paymentsCreate,
+    ],
+    [
+      "create_subscription",
+      {
+        customerId: "cst_test",
+        subscriptionRequest: {
+          amount: { currency: "EUR", value: "10.00" },
+          interval: "1 month",
+          description: "test",
+        },
+      },
+      () => mocks.subscriptionsCreate,
+    ],
+    [
+      "create_payment_link",
+      { requestBody: { description: "test", amount: { currency: "EUR", value: "10.00" } } },
+      () => mocks.paymentLinksCreate,
+    ],
+    [
+      "update_payment_link",
+      { paymentLinkId: "pl_test", requestBody: { description: "Updated" } },
+      () => mocks.paymentLinksUpdate,
+    ],
+  ] as const)("%s rejects and does not call the client when requireConfirmation denies", async (name, params, getMock) => {
+    const requireConfirmation = vi.fn().mockResolvedValue({ approved: false });
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: [name],
+      requireConfirmation,
+    });
+    const tool = toolkit.getTools().find((t) => t.name === name)!;
+
+    await expect(tool.execute(params)).rejects.toThrow();
+    expect(getMock()).not.toHaveBeenCalled();
+  });
+});
