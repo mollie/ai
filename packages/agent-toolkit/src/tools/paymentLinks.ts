@@ -1,8 +1,12 @@
 import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
+import { assertAllowedUrl } from "../urlAllowlist.js";
 
-export const paymentLinkTools = (client: Client): MollieTool[] => [
+export const paymentLinkTools = (
+  client: Client,
+  options?: { allowedRedirectDomains?: readonly string[]; allowedWebhookDomains?: readonly string[] },
+): MollieTool[] => [
   {
     name: "list_payment_links",
     description: "List payment links for the current Mollie profile.",
@@ -67,7 +71,15 @@ export const paymentLinkTools = (client: Client): MollieTool[] => [
           .describe("ISO 8601 datetime the link expires at. Omit for a link that never expires."),
       }),
     }),
-    execute: async (params) => client.paymentLinks.create(params),
+    execute: async (params) => {
+      if (params.requestBody.redirectUrl) {
+        assertAllowedUrl(params.requestBody.redirectUrl, options?.allowedRedirectDomains, "redirectUrl");
+      }
+      if (params.requestBody.webhookUrl) {
+        assertAllowedUrl(params.requestBody.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
+      }
+      return client.paymentLinks.create(params);
+    },
   },
 
   {
@@ -83,7 +95,15 @@ export const paymentLinkTools = (client: Client): MollieTool[] => [
         expiresAt: z.string().optional(),
       }),
     }),
-    execute: async (params) => client.paymentLinks.update(params),
+    execute: async (params) => {
+      if (params.requestBody.redirectUrl) {
+        assertAllowedUrl(params.requestBody.redirectUrl, options?.allowedRedirectDomains, "redirectUrl");
+      }
+      if (params.requestBody.webhookUrl) {
+        assertAllowedUrl(params.requestBody.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
+      }
+      return client.paymentLinks.update(params);
+    },
   },
 
   {

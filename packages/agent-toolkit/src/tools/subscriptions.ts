@@ -1,8 +1,12 @@
 import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
+import { assertAllowedUrl } from "../urlAllowlist.js";
 
-export const subscriptionTools = (client: Client): MollieTool[] => [
+export const subscriptionTools = (
+  client: Client,
+  options?: { allowedWebhookDomains?: readonly string[] },
+): MollieTool[] => [
   {
     name: "list_subscriptions",
     description: "List subscriptions for a specific customer.",
@@ -43,6 +47,15 @@ export const subscriptionTools = (client: Client): MollieTool[] => [
           .describe("Number of charges. Omit for an indefinite subscription."),
       }),
     }),
-    execute: async (params) => client.subscriptions.create(params),
+    execute: async (params) => {
+      if (params.subscriptionRequest.webhookUrl) {
+        assertAllowedUrl(
+          params.subscriptionRequest.webhookUrl,
+          options?.allowedWebhookDomains,
+          "webhookUrl",
+        );
+      }
+      return client.subscriptions.create(params);
+    },
   },
 ];

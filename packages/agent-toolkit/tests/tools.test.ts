@@ -4,8 +4,10 @@ import { MollieAgentToolkit, ALL_TOOLS } from "../src/toolkit.js";
 const mocks = vi.hoisted(() => ({
   paymentsList: vi.fn().mockResolvedValue({ data: [{ id: "tr_test" }] }),
   paymentsGet: vi.fn().mockResolvedValue({ id: "tr_test", status: "paid" }),
+  paymentsCreate: vi.fn().mockResolvedValue({ id: "tr_test" }),
   refundsCreate: vi.fn().mockResolvedValue({ id: "re_test" }),
   settlementsList: vi.fn().mockResolvedValue({ data: [] }),
+  subscriptionsCreate: vi.fn().mockResolvedValue({ id: "sub_test" }),
   salesInvoicesList: vi.fn().mockResolvedValue({ data: [] }),
   salesInvoicesGet: vi.fn().mockResolvedValue({ id: "invoice_test", status: "draft" }),
   salesInvoicesCreate: vi.fn().mockResolvedValue({ id: "invoice_test", status: "draft" }),
@@ -19,13 +21,13 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("mollie-api-typescript", () => {
   const mockClient = {
-    payments: { list: mocks.paymentsList, get: mocks.paymentsGet, create: vi.fn() },
+    payments: { list: mocks.paymentsList, get: mocks.paymentsGet, create: mocks.paymentsCreate },
     refunds: { list: vi.fn(), get: vi.fn(), create: mocks.refundsCreate },
     customers: { list: vi.fn(), get: vi.fn(), create: vi.fn() },
     balances: { list: vi.fn(), get: vi.fn() },
     settlements: { list: mocks.settlementsList, get: vi.fn() },
     methods: { list: vi.fn() },
-    subscriptions: { list: vi.fn(), create: vi.fn() },
+    subscriptions: { list: vi.fn(), create: mocks.subscriptionsCreate },
     salesInvoices: {
       list: mocks.salesInvoicesList,
       get: mocks.salesInvoicesGet,
@@ -176,5 +178,162 @@ describe("Payment link tools", () => {
     const tool = toolkit.getTools().find((t) => t.name === "list_payment_link_payments")!;
     await tool.execute({ paymentLinkId: "pl_test", limit: 10 });
     expect(mocks.paymentLinksListPayments).toHaveBeenCalledWith({ paymentLinkId: "pl_test", limit: 10 });
+  });
+});
+
+describe("URL allowlist", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("create_payment rejects a redirectUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_payment"],
+      allowedRedirectDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment")!;
+
+    await expect(
+      tool.execute({
+        paymentRequest: {
+          amount: { currency: "EUR", value: "10.00" },
+          description: "test",
+          redirectUrl: "https://evil.com/callback",
+        },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.paymentsCreate).not.toHaveBeenCalled();
+  });
+
+  it("create_payment allows a redirectUrl on an allowed domain", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_payment"],
+      allowedRedirectDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment")!;
+    const params = {
+      paymentRequest: {
+        amount: { currency: "EUR", value: "10.00" },
+        description: "test",
+        redirectUrl: "https://example.com/callback",
+      },
+    };
+
+    await tool.execute(params);
+    expect(mocks.paymentsCreate).toHaveBeenCalledWith(params);
+  });
+
+  it("create_payment_link rejects a webhookUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_payment_link"],
+      allowedWebhookDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment_link")!;
+
+    await expect(
+      tool.execute({
+        requestBody: {
+          description: "test",
+          amount: { currency: "EUR", value: "10.00" },
+          webhookUrl: "https://evil.com/callback",
+        },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.paymentLinksCreate).not.toHaveBeenCalled();
+  });
+
+  it("update_payment_link rejects a webhookUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["update_payment_link"],
+      allowedWebhookDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+
+    await expect(
+      tool.execute({
+        paymentLinkId: "pl_test",
+        requestBody: { webhookUrl: "https://evil.com/callback" },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.paymentLinksUpdate).not.toHaveBeenCalled();
+  });
+
+  it("create_payment_link rejects a redirectUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_payment_link"],
+      allowedRedirectDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment_link")!;
+
+    await expect(
+      tool.execute({
+        requestBody: {
+          description: "test",
+          amount: { currency: "EUR", value: "10.00" },
+          redirectUrl: "https://evil.com/callback",
+        },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.paymentLinksCreate).not.toHaveBeenCalled();
+  });
+
+  it("update_payment_link rejects a redirectUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["update_payment_link"],
+      allowedRedirectDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+
+    await expect(
+      tool.execute({
+        paymentLinkId: "pl_test",
+        requestBody: { redirectUrl: "https://evil.com/callback" },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.paymentLinksUpdate).not.toHaveBeenCalled();
+  });
+
+  it("create_payment_link allows external URLs when no allowlist is configured", async () => {
+    const toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ["create_payment_link"] });
+    const tool = toolkit.getTools().find((t) => t.name === "create_payment_link")!;
+    const params = {
+      requestBody: {
+        description: "test",
+        amount: { currency: "EUR", value: "10.00" },
+        redirectUrl: "https://external.example/return",
+        webhookUrl: "https://hooks.external.example/callback",
+      },
+    };
+
+    await tool.execute(params);
+    expect(mocks.paymentLinksCreate).toHaveBeenCalledWith(params);
+  });
+
+  it("create_subscription rejects a webhookUrl outside the allowed domains", async () => {
+    const toolkit = new MollieAgentToolkit({
+      apiKey: "test_xxx",
+      tools: ["create_subscription"],
+      allowedWebhookDomains: ["example.com"],
+    });
+    const tool = toolkit.getTools().find((t) => t.name === "create_subscription")!;
+
+    await expect(
+      tool.execute({
+        customerId: "cst_test",
+        subscriptionRequest: {
+          amount: { currency: "EUR", value: "10.00" },
+          interval: "1 month",
+          description: "test",
+          webhookUrl: "https://evil.com/callback",
+        },
+      }),
+    ).rejects.toThrow();
+    expect(mocks.subscriptionsCreate).not.toHaveBeenCalled();
   });
 });
