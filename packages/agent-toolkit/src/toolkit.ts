@@ -41,7 +41,7 @@ export const ALL_TOOLS: readonly ToolName[] = [
 export class MollieAgentToolkit {
   private readonly tools: MollieTool[];
 
-  constructor({ apiKey, tools, allowedRedirectDomains, allowedWebhookDomains }: MollieAgentToolkitOptions) {
+  constructor({ apiKey, tools, allowedRedirectDomains, allowedWebhookDomains, requireConfirmation }: MollieAgentToolkitOptions) {
     if (!tools) {
       throw new Error(
         "MollieAgentToolkit requires an explicit `tools` allowlist. There is no default. Omitting `tools` used to silently enable every tool, including ones that move money (create_payment, create_refund, create_payment_link, ...). Pass the smallest set your agent needs, e.g. `tools: [\"list_payments\", \"get_payment\"]`, or `tools: ALL_TOOLS` if you deliberately want every tool.",
@@ -53,15 +53,15 @@ export class MollieAgentToolkit {
     const enabled = new Set<ToolName>(tools);
 
     const all: MollieTool[] = [
-      ...paymentTools(client, { allowedRedirectDomains, allowedWebhookDomains }),
-      ...refundTools(client),
+      ...paymentTools(client, { allowedRedirectDomains, allowedWebhookDomains, requireConfirmation }),
+      ...refundTools(client, { requireConfirmation }),
       ...customerTools(client),
       ...balanceTools(client),
       ...settlementTools(client),
       ...methodTools(client),
-      ...subscriptionTools(client, { allowedWebhookDomains }),
+      ...subscriptionTools(client, { allowedWebhookDomains, requireConfirmation }),
       ...salesInvoiceTools(client),
-      ...paymentLinkTools(client, { allowedRedirectDomains, allowedWebhookDomains }),
+      ...paymentLinkTools(client, { allowedRedirectDomains, allowedWebhookDomains, requireConfirmation }),
     ];
 
     this.tools = all.filter((t) => enabled.has(t.name as ToolName));

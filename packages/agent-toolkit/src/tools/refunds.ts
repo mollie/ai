@@ -1,8 +1,12 @@
 import { z } from "zod";
 import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
+import { assertConfirmed, type RequireConfirmation } from "../confirmation.js";
 
-export const refundTools = (client: Client): MollieTool[] => [
+export const refundTools = (
+  client: Client,
+  options?: { requireConfirmation?: RequireConfirmation },
+): MollieTool[] => [
   {
     name: "list_refunds",
     description: "List all refunds, or refunds for a specific payment.",
@@ -39,6 +43,9 @@ export const refundTools = (client: Client): MollieTool[] => [
         })
         .optional(),
     }),
-    execute: async (params) => client.refunds.create(params),
+    execute: async (params) => {
+      await assertConfirmed(options?.requireConfirmation, { tool: "create_refund", params });
+      return client.refunds.create(params);
+    },
   },
 ];
