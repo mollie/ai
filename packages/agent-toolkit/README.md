@@ -213,6 +213,29 @@ As of 0.5.0 it is required; omitting it throws instead. Update any
 `new MollieAgentToolkit({ apiKey })` call to pass an explicit `tools` array,
 or `tools: ALL_TOOLS` to keep the previous behavior.
 
+## Logging and redaction
+
+Tool arguments and results can carry card data, IBAN-adjacent routing
+details, or customer identifiers. Redact or mask these before writing
+request/response data to logs or audit trails — use the exported
+`redactSensitiveData` helper as a drop-in control instead of hand-rolling
+masking logic:
+
+```typescript
+import { redactSensitiveData } from "@mollie/agent-toolkit";
+
+function audit(event: string, details: Record<string, unknown>) {
+  console.error(`[audit] ${new Date().toISOString()} ${event}`, JSON.stringify(redactSensitiveData(details)));
+}
+```
+
+`redactSensitiveData` deep-walks the given value and replaces the value of
+any object key matching a known-sensitive field name (e.g. `iban`,
+`cardNumber`, `cvv`, `customerId`, `email`) with `"[REDACTED]"`, regardless
+of nesting depth. Pass `extraKeys` to redact additional field names specific
+to your integration. See `examples/langchain/index.ts`'s `audit` function for
+a full worked example.
+
 ## Available tools
 
 ### Payments

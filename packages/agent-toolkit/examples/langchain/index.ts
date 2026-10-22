@@ -15,7 +15,7 @@
  */
 
 import { createInterface } from "node:readline/promises";
-import { MollieAgentToolkit } from "@mollie/agent-toolkit";
+import { MollieAgentToolkit, redactSensitiveData } from "@mollie/agent-toolkit";
 import { toLangChainTools } from "@mollie/agent-toolkit/langchain";
 import { ChatOpenAI } from "@langchain/openai";
 import { createToolCallingAgent, AgentExecutor } from "langchain/agents";
@@ -40,10 +40,12 @@ if (!getPayment) {
 function audit(event: string, details: Record<string, unknown>) {
   // details can contain LLM-originated params of unknown shape — a circular
   // reference (or a stringify-unsafe value) must not turn the audit call
-  // itself into a crash path.
+  // itself into a crash path. redactSensitiveData also guards against
+  // circular references on its own, but JSON.stringify below is the actual
+  // serialization step that could still throw on other edge cases.
   let serialized: string;
   try {
-    serialized = JSON.stringify(details);
+    serialized = JSON.stringify(redactSensitiveData(details));
   } catch {
     serialized = "[unserializable]";
   }
