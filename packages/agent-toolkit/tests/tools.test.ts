@@ -181,6 +181,97 @@ describe("Payment link tools", () => {
   });
 });
 
+describe("Payment link audit logging", () => {
+  let toolkit: MollieAgentToolkit;
+
+  beforeEach(() => {
+    toolkit = new MollieAgentToolkit({ apiKey: "test_xxx", tools: ALL_TOOLS });
+    vi.clearAllMocks();
+  });
+
+  it("update_payment_link logs a before/after diff when webhookUrl, redirectUrl, or reusable change", async () => {
+    mocks.paymentLinksGet.mockResolvedValueOnce({
+      id: "pl_test",
+      webhookUrl: "https://old.example.com/hook",
+      redirectUrl: "https://old.example.com/return",
+      reusable: false,
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+    await tool.execute({
+      paymentLinkId: "pl_test",
+      requestBody: {
+        webhookUrl: "https://new.example.com/hook",
+        redirectUrl: "https://new.example.com/return",
+        reusable: true,
+      },
+    });
+
+    expect(mocks.paymentLinksGet).toHaveBeenCalledWith({ paymentLinkId: "pl_test" });
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    const [, payload] = errorSpy.mock.calls[0];
+    expect(JSON.parse(payload as string)).toEqual({
+      paymentLinkId: "pl_test",
+      diff: [
+        { field: "webhookUrl", before: "https://old.example.com/hook", after: "https://new.example.com/hook" },
+        { field: "redirectUrl", before: "https://old.example.com/return", after: "https://new.example.com/return" },
+        { field: "reusable", before: false, after: true },
+      ],
+    });
+    expect(mocks.paymentLinksUpdate).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
+
+  it("update_payment_link does not log when only unaudited fields change", async () => {
+    mocks.paymentLinksGet.mockResolvedValueOnce({
+      id: "pl_test",
+      webhookUrl: "https://old.example.com/hook",
+      redirectUrl: "https://old.example.com/return",
+      reusable: false,
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+    await tool.execute({ paymentLinkId: "pl_test", requestBody: { description: "Updated" } });
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(mocks.paymentLinksUpdate).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
+
+  it("update_payment_link surfaces a clear error and does not call paymentLinks.update when the audit fetch fails", async () => {
+    mocks.paymentLinksGet.mockRejectedValueOnce(new Error("network error"));
+
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+
+    await expect(
+      tool.execute({ paymentLinkId: "pl_test", requestBody: { webhookUrl: "https://new.example.com/hook" } }),
+    ).rejects.toThrow(/update_payment_link: failed to fetch the current payment link for audit logging/);
+    expect(mocks.paymentLinksUpdate).not.toHaveBeenCalled();
+  });
+
+  it("update_payment_link does not log a phantom diff when reusable is absent on the fetched link and the update sends the default", async () => {
+    mocks.paymentLinksGet.mockResolvedValueOnce({
+      id: "pl_test",
+      webhookUrl: "https://old.example.com/hook",
+      redirectUrl: "https://old.example.com/return",
+      // `reusable` intentionally omitted, as on older payment links.
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const tool = toolkit.getTools().find((t) => t.name === "update_payment_link")!;
+    await tool.execute({ paymentLinkId: "pl_test", requestBody: { reusable: false } });
+
+    expect(errorSpy).not.toHaveBeenCalled();
+    expect(mocks.paymentLinksUpdate).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
+});
+
 describe("URL allowlist", () => {
   beforeEach(() => {
     vi.clearAllMocks();

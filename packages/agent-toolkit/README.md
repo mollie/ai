@@ -307,6 +307,8 @@ a full worked example.
 | `create_payment_link` | **Write** | Create a shareable payment link |
 | `update_payment_link` | Write | Update a payment link's description, redirect/webhook URL, expiry, or reusability |
 
+`update_payment_link` additionally fetches the link's current state before applying changes and logs a redacted before/after diff of any changed `webhookUrl`, `redirectUrl`, or `reusable` fields via `console.error`, so updates to an already-shared link leave an audit trail.
+
 Read tools are safe to expose broadly. Treat every Write tool as privileged,
 and the money-moving tools (`create_payment`, `create_refund`, `create_payment_link`) as
 requiring explicit authorization before the agent can call them.
