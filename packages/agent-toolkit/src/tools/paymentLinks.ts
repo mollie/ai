@@ -3,6 +3,7 @@ import type { Client } from "mollie-api-typescript";
 import type { MollieTool } from "../types.js";
 import { assertAllowedUrl } from "../urlAllowlist.js";
 import { assertConfirmed, type RequireConfirmation } from "../confirmation.js";
+import { redactSensitiveData } from "../redact.js";
 
 export const paymentLinkTools = (
   client: Client,
@@ -109,6 +110,38 @@ export const paymentLinkTools = (
         assertAllowedUrl(params.requestBody.webhookUrl, options?.allowedWebhookDomains, "webhookUrl");
       }
       await assertConfirmed(options?.requireConfirmation, { tool: "update_payment_link", params });
+
+      const auditedFields = ["webhookUrl", "redirectUrl", "reusable"] as const;
+      let current: Awaited<ReturnType<typeof client.paymentLinks.get>>;
+      try {
+        current = await client.paymentLinks.get({ paymentLinkId: params.paymentLinkId });
+      } catch (cause) {
+        throw new Error(
+          `update_payment_link: failed to fetch the current payment link for audit logging; the update was not applied (${
+            cause instanceof Error ? cause.message : String(cause)
+          }).`,
+          { cause },
+        );
+      }
+      // Older payment links may omit `reusable` from the API response (defaulting to
+      // false) rather than returning it explicitly — normalize before comparing so that
+      // re-sending the default doesn't produce a phantom diff entry.
+      const normalize = (field: (typeof auditedFields)[number], value: unknown) =>
+        field === "reusable" ? (value ?? false) : value;
+      const diff = auditedFields
+        .filter(
+          (field) =>
+            field in params.requestBody &&
+            normalize(field, params.requestBody[field]) !== normalize(field, current[field]),
+        )
+        .map((field) => ({ field, before: current[field], after: params.requestBody[field] }));
+      if (diff.length > 0) {
+        console.error(
+          `[audit] ${new Date().toISOString()} update_payment_link`,
+          JSON.stringify(redactSensitiveData({ paymentLinkId: params.paymentLinkId, diff })),
+        );
+      }
+
       return client.paymentLinks.update(params);
     },
   },
